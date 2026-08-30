@@ -10,6 +10,7 @@ import ConfidenceIndicator from '../components/ConfidenceIndicator'
 import RecognitionStatus from '../components/RecognitionStatus'
 import UnknownSignAlert from '../components/UnknownSignAlert'
 import ContextInterpretation from '../components/ContextInterpretation'
+import TranslationPanel from '../components/TranslationPanel'
 
 export default function LiveDetection() {
   const videoRef = useRef(null)
@@ -228,6 +229,8 @@ export default function LiveDetection() {
         onRetry={handleRetry}
         onSpeak={handleSpeak}
       />
+
+      <TranslationPanel text={sentence} partial={partial} disabled={sequence.length > 0 && !sentence} />
 
       <div className="grid lg:grid-cols-[280px_1fr_320px] gap-6">
         {/* Left Panel */}
