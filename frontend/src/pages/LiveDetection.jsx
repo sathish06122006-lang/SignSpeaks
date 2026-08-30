@@ -1,8 +1,13 @@
-import { useRef, useState, useEffect } from 'react'
-import { FiCamera, FiCameraOff, FiRefreshCw, FiVolume2, FiCopy, FiTrash2, FiDownload, FiSave } from 'react-icons/fi'
+import { useRef, useState, useEffect, useCallback } from 'react'
+import { FiCamera, FiCameraOff, FiRefreshCw, FiVolume2, FiCopy, FiTrash2, FiDownload, FiSave, FiRotateCcw, FiAlertTriangle } from 'react-icons/fi'
 import { useMediaPipeHands } from '../hooks/useMediaPipeHands'
 import { speak } from '../utils/speech'
 import api from '../utils/api'
+import { classifyConfidence, isRecognized, displaySign } from '../services/ConfidenceService'
+import { STATUS, STATUS_META } from '../config/recognition'
+import ConfidenceIndicator from '../components/ConfidenceIndicator'
+import RecognitionStatus from '../components/RecognitionStatus'
+import UnknownSignAlert from '../components/UnknownSignAlert'
 
 export default function LiveDetection() {
   const videoRef = useRef(null)
@@ -12,48 +17,85 @@ export default function LiveDetection() {
   const [sentence, setSentence] = useState('')
   const [history, setHistory] = useState([])
   const [lastSign, setLastSign] = useState(null)
-  const [serverFps, setServerFps] = useState(0)
+  const [backendError, setBackendError] = useState('')
+  const [retrying, setRetrying] = useState(false)
   const lastAddedRef = useRef({ sign: null, time: 0 })
   const pollingRef = useRef(null)
 
   // Tracks up to 2 hands so both single-hand and two-handed signs work.
-  const { handDetected, hands, fps: clientFps } = useMediaPipeHands({ videoRef, canvasRef, active, maxHands: 2 })
+  // `error` surfaces camera permission/availability failures.
+  const { handDetected, hands, fps: clientFps, error: cameraError } = useMediaPipeHands({ videoRef, canvasRef, active, maxHands: 2 })
   const handsRef = useRef(hands)
   handsRef.current = hands
 
-  // Poll the backend classifier (mock heuristic until a real model is
-  // trained, then automatically your trained TensorFlow model) roughly
-  // twice a second rather than on every video frame, since it's a network
-  // round trip.
-  useEffect(() => {
-    if (!active) return
-    pollingRef.current = setInterval(async () => {
-      const currentHands = handsRef.current
-      if (!currentHands || currentHands.length === 0) return
-      try {
-        const { data } = await api.post('/api/detection/predict', {
-          hands: currentHands.map((h) => ({ handedness: h.handedness, landmarks: h.landmarks })),
-        })
-        setServerFps((f) => f) // fps is measured client-side; kept for future server timing
-        if (!data.sign || data.confidence < 0.6) return
+  // Single shared prediction routine — used by both the live poll loop and
+  // the manual Retry button, so the two can never drift apart.
+  const runPrediction = useCallback(async () => {
+    const currentHands = handsRef.current
+    if (!currentHands || currentHands.length === 0) {
+      // No hand in frame: keep camera running, clear stale result.
+      setLastSign((prev) => (prev ? null : prev)) // no-op if already null
+      return
+    }
+    try {
+      const { data } = await api.post('/api/detection/predict', {
+        hands: currentHands.map((h) => ({ handedness: h.handedness, landmarks: h.landmarks })),
+      })
+      setBackendError('')
+      if (!data) return
 
+      // Avoid pointless re-renders: only update when the result actually changed.
+      setLastSign((prev) =>
+        prev && prev.sign === data.sign && prev.confidence === data.confidence ? prev : data
+      )
+
+      // Only signs recognised with Medium+ confidence enter the sentence;
+      // low-confidence / Unknown results are shown but never auto-appended.
+      if (data.sign && isRecognized(classifyConfidence(data.confidence))) {
         const now = Date.now()
         if (data.sign !== lastAddedRef.current.sign || now - lastAddedRef.current.time > 1500) {
           lastAddedRef.current = { sign: data.sign, time: now }
-          setLastSign(data)
           setSentence((s) => (s ? `${s} ${data.sign}` : data.sign))
           setHistory((h) => [{ ...data, timestamp: new Date().toISOString() }, ...h].slice(0, 50))
         }
-      } catch {
-        // transient network/auth error - skip this tick
       }
-    }, 500)
-    return () => clearInterval(pollingRef.current)
-  }, [active])
+    } catch (err) {
+      if (err?.response?.status === 401) {
+        setBackendError('Your session has expired — please log in again.')
+      } else {
+        setBackendError('Backend unavailable. Make sure the API server is running (default http://localhost:8000).')
+      }
+    } finally {
+      setRetrying(false)
+    }
+  }, [])
 
-  const startCamera = () => setActive(true)
+  // Poll the backend classifier roughly twice a second rather than on every
+  // video frame, since each call is a network round trip.
+  useEffect(() => {
+    if (!active) return
+    pollingRef.current = setInterval(runPrediction, 500)
+    return () => clearInterval(pollingRef.current)
+  }, [active, runPrediction])
+
+  // Safety net: release browser camera tracks on unmount if the user navigates
+  // away while the camera is still on.
+  useEffect(
+    () => () => {
+      const tracks = videoRef.current?.srcObject?.getTracks?.() || []
+      tracks.forEach((t) => t.stop())
+    },
+    []
+  )
+
+  const startCamera = () => {
+    setActive(true)
+    setBackendError('')
+  }
   const stopCamera = () => {
     setActive(false)
+    setLastSign(null)
+    setBackendError('')
     const tracks = videoRef.current?.srcObject?.getTracks?.() || []
     tracks.forEach((t) => t.stop())
   }
@@ -63,8 +105,25 @@ export default function LiveDetection() {
   const handleClear = () => {
     setSentence('')
     setHistory([])
+    setLastSign(null)
+    setBackendError('')
+  }
+  const handleRetry = () => {
+    setBackendError('')
+    setLastSign(null)
+    setRetrying(true)
+    runPrediction()
   }
   const handleSpeak = () => speak(sentence, { voiceGender: 'female' })
+
+  // ---- Derived recognition state (real model output, never invented) ----
+  const lastStatus = lastSign
+    ? lastSign.sign
+      ? classifyConfidence(lastSign.confidence)
+      : { level: STATUS.NO_HAND, ...STATUS_META[STATUS.NO_HAND] }
+    : null
+  const detectedLabel = lastSign ? displaySign(lastSign) : '—'
+  const showUnknown = lastSign?.sign && lastStatus && !isRecognized(lastStatus)
 
   const handleSave = async () => {
     try {
@@ -93,7 +152,27 @@ export default function LiveDetection() {
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
       <h1 className="font-display text-3xl font-bold mb-2">Live Detection</h1>
-      <p className="opacity-70 mb-8">Real-time ISL recognition — tracks one or both hands, whichever the sign needs.</p>
+      <p className="opacity-70 mb-8">Real-time ISL recognition with confidence scoring — tracks one or both hands, whichever the sign needs.</p>
+
+      {(cameraError || backendError) && (
+        <div className="mb-6 space-y-2">
+          {cameraError && (
+            <div role="alert" className="flex items-center gap-2 rounded-xl border border-coral/40 bg-coral/10 px-4 py-3 text-sm text-coral">
+              <FiAlertTriangle className="shrink-0" />
+              <span>{cameraError}</span>
+            </div>
+          )}
+          {backendError && (
+            <div role="alert" className="flex items-center gap-2 rounded-xl border border-coral/40 bg-coral/10 px-4 py-3 text-sm text-coral">
+              <FiAlertTriangle className="shrink-0" />
+              <span>{backendError}</span>
+              <button onClick={handleRetry} className="ml-auto shrink-0 px-3 py-1 rounded-full glass text-xs font-semibold hover:opacity-80">
+                Retry
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="grid lg:grid-cols-[280px_1fr_320px] gap-6">
         {/* Left Panel */}
@@ -134,14 +213,34 @@ export default function LiveDetection() {
 
         {/* Right Panel */}
         <div className="glass rounded-2xl p-5 space-y-4">
-          <div>
+          <div className="space-y-3">
             <h3 className="font-display font-semibold mb-1">Current Sign</h3>
-            <div className="text-4xl font-display font-extrabold text-gradient">
-              {lastSign?.sign || '—'}
+            <div className={`text-4xl font-display font-extrabold ${detectedLabel === 'UNKNOWN' ? 'text-coral' : 'text-gradient'}`}>
+              {detectedLabel}
             </div>
-            <p className="text-xs opacity-60 mt-1">
-              Confidence: {lastSign ? `${Math.round(lastSign.confidence * 100)}%` : '—'} · {clientFps} FPS
+
+            <div className="flex flex-wrap items-center gap-3">
+              {lastStatus && <RecognitionStatus status={lastStatus} />}
+              {lastSign?.sign && lastStatus && (
+                <div className="min-w-[180px]"><ConfidenceIndicator level={lastStatus.level} value={lastStatus.value} /></div>
+              )}
+            </div>
+
+            <p className="text-xs opacity-60">
+              {clientFps} FPS{lastSign?.category ? ` · Category: ${lastSign.category}` : ''}
             </p>
+
+            {showUnknown && <UnknownSignAlert status={lastStatus} />}
+
+            {showUnknown && lastSign?.top3?.length > 1 && (
+              <p className="text-xs opacity-60">
+                <span className="font-semibold">Nearest signs:</span> {lastSign.top3.map((t) => t.sign).join(' · ')}
+              </p>
+            )}
+
+            {active && !lastSign?.sign && (
+              <p className="text-xs opacity-60">No hand detected — position one or both hands in frame.</p>
+            )}
           </div>
 
           <div>
@@ -160,6 +259,7 @@ export default function LiveDetection() {
             <button onClick={handleCopy} className="flex items-center justify-center gap-1 px-3 py-2 rounded-full glass text-xs font-semibold"><FiCopy /> Copy</button>
             <button onClick={handleClear} className="flex items-center justify-center gap-1 px-3 py-2 rounded-full glass text-xs font-semibold"><FiTrash2 /> Clear</button>
             <button onClick={handleDownloadPdf} className="flex items-center justify-center gap-1 px-3 py-2 rounded-full glass text-xs font-semibold"><FiDownload /> Export</button>
+            <button onClick={handleRetry} disabled={retrying} className="flex items-center justify-center gap-1 px-3 py-2 rounded-full glass text-xs font-semibold disabled:opacity-40"><FiRotateCcw /> {retrying ? 'Retrying…' : 'Retry'}</button>
             <button onClick={handleSave} className="col-span-2 flex items-center justify-center gap-1 px-3 py-2 rounded-full bg-brand-gradient text-white text-xs font-semibold"><FiSave /> Save Conversation</button>
           </div>
 

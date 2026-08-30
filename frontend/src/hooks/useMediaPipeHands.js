@@ -17,6 +17,7 @@ export function useMediaPipeHands({ videoRef, canvasRef, active, maxHands = 2 })
   const [hands, setHands] = useState([]) // [{ handedness, landmarks }]
   const [prediction, setPrediction] = useState({ sign: null, confidence: 0, category: null })
   const [fps, setFps] = useState(0)
+  const [error, setError] = useState(null) // camera permission / availability failure
   const cameraRef = useRef(null)
   const lastFrameTime = useRef(performance.now())
 
@@ -79,14 +80,31 @@ export function useMediaPipeHands({ videoRef, canvasRef, active, maxHands = 2 })
       width: 640,
       height: 480,
     })
-    camera.start()
-    cameraRef.current = camera
+
+    // Some browsers throw (permission denied / no device). Surface a
+    // meaningful message instead of leaving the page silently broken.
+    setError(null)
+    camera
+      .start()
+      .then(() => {
+        cameraRef.current = camera
+      })
+      .catch((err) => {
+        console.warn('[useMediaPipeHands] Camera failed to start:', err)
+        setError(
+          'Camera permission denied or camera unavailable. Please allow camera access and try again.'
+        )
+      })
 
     return () => {
-      camera.stop()
+      try {
+        camera.stop()
+      } catch {
+        // camera never started — nothing to stop
+      }
       handsModel.close()
     }
   }, [active, onResults, videoRef, maxHands])
 
-  return { handDetected, hands, prediction, fps }
+  return { handDetected, hands, prediction, fps, error }
 }
