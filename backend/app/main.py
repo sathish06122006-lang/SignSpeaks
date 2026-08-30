@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import os
 
 from app.config import settings
 from app.database import ensure_indexes
-from app.routes import auth, detection, dashboard, tutorials, admin, dataset
+from app.routes import auth, detection, dashboard, tutorials, admin, dataset, sign_images, practice
 
 app = FastAPI(
     title="Sign Speaks API",
@@ -25,6 +27,12 @@ app.include_router(dashboard.router)
 app.include_router(tutorials.router)
 app.include_router(admin.router)
 app.include_router(dataset.router)
+app.include_router(sign_images.router)
+app.include_router(practice.router)
+
+STATIC_ROOT = os.path.join(os.path.dirname(__file__), "static")
+os.makedirs(STATIC_ROOT, exist_ok=True)
+app.mount("/static", StaticFiles(directory=STATIC_ROOT), name="static")
 
 
 @app.on_event("startup")

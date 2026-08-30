@@ -25,11 +25,6 @@ _load_attempted = False
 
 
 def _try_load_model():
-    """Lazily attempt to load the trained model + label map exactly once.
-    If TensorFlow isn't installed, or no model has been trained yet, this
-    silently leaves _model as None and callers fall back to the mock
-    classifier -- so the API works fine with zero setup, and gets real
-    predictions the moment a model shows up."""
     global _model, _labels, _load_attempted
     if _load_attempted:
         return
@@ -39,12 +34,12 @@ def _try_load_model():
         return
 
     try:
-        import tensorflow as tf  # heavy import, only pulled in if a model exists
+        import tensorflow as tf
         _model = tf.keras.models.load_model(MODEL_PATH)
         with open(LABELS_PATH) as f:
             _labels = json.load(f)
         print(f"[real_cnn] Loaded trained model with {len(_labels)} classes: {_labels}")
-    except Exception as exc:  # pragma: no cover - defensive
+    except Exception as exc:
         print(f"[real_cnn] Could not load trained model, falling back to mock classifier: {exc}")
         _model = None
         _labels = None
@@ -59,8 +54,6 @@ def _guess_category(label: str) -> str:
 
 
 def _hands_payload_to_dict(hands) -> dict:
-    """hands: list of {handedness, landmarks: [LandmarkPoint x21]} (Pydantic
-    objects) -> {"Right": [[x,y,z]x21] | None, "Left": [[x,y,z]x21] | None}"""
     result = {"Right": None, "Left": None}
     for hand in hands:
         pts = [[p.x, p.y, p.z] for p in hand.landmarks]
@@ -70,7 +63,6 @@ def _hands_payload_to_dict(hands) -> dict:
 
 
 def classify_landmarks(hands, seed_hint: str = "") -> dict:
-    """hands: list of HandLandmarks (1 or 2 entries)."""
     _try_load_model()
 
     if not hands:
@@ -79,9 +71,6 @@ def classify_landmarks(hands, seed_hint: str = "") -> dict:
     hands_dict = _hands_payload_to_dict(hands)
 
     if _model is None:
-        # No trained model yet -- use the transparent geometric fallback
-        # (based on whichever hand is present) so the app is fully
-        # demoable before any training has happened.
         primary = hands_dict["Right"] or hands_dict["Left"]
         return mock_cnn.classify_landmarks(primary, seed_hint)
 
@@ -92,13 +81,28 @@ def classify_landmarks(hands, seed_hint: str = "") -> dict:
     label = _labels[best_idx]
     confidence = float(round(probs[best_idx], 2))
 
+    top3_idx = probs.argsort()[-3:][::-1]
+    top3 = [{"sign": _labels[i], "confidence": float(round(probs[i], 3))} for i in top3_idx]
+    print(f"[real_cnn] Prediction: {label} ({confidence:.2f}) | Top-3: {top3}")
+
     return {
         "sign": label,
         "confidence": confidence,
         "category": _guess_category(label),
-        "fps": 0.0,  # measured client-side; kept for response-shape parity
+        "fps": 0.0,
+        "top3": top3,
     }
 
 
 def no_hand_detected_response() -> dict:
     return mock_cnn.no_hand_detected_response()
+
+
+def get_available_labels():
+    """Which signs can the currently-active classifier actually predict?
+    Returns (labels: list[str], source: "model" | "mock"). Used by the
+    frontend so AI Practice only offers signs the model genuinely knows."""
+    _try_load_model()
+    if _model is not None and _labels:
+        return list(_labels), "model"
+    return mock_cnn.all_sign_labels(), "mock"

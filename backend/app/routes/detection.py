@@ -3,15 +3,33 @@ from fastapi.responses import StreamingResponse
 from bson import ObjectId
 from datetime import datetime
 import io
+import asyncio
 
 from app.models.detection import DetectionRequest, SaveConversationRequest
 from app.database import detections_collection, conversations_collection
 from app.utils.jwt_handler import get_current_user
-from app.services.real_cnn import classify_landmarks, no_hand_detected_response
+from app.services.real_cnn import classify_landmarks, no_hand_detected_response, get_available_labels
 from app.services.pdf_service import generate_conversation_pdf
 from app.services.translation import translate_text
 
 router = APIRouter(prefix="/api/detection", tags=["detection"])
+
+# Cache the last saved sign per user to avoid redundant DB writes on every frame.
+_last_saved = {}
+
+
+@router.get("/labels")
+async def available_labels(user: dict = Depends(get_current_user)):
+    """Which signs the currently-active classifier supports + whether it
+    outputs confidence natively. Lets AI Practice show only real, supported
+    targets and guarantees the UI never offers an unsupported sign as
+    'recognizable'."""
+    labels, source = get_available_labels()
+    return {
+        "labels": labels,
+        "source": source,  # "model" (trained CNN) | "mock" (placeholder classifier)
+        "confidence_supported": True,
+    }
 
 
 @router.post("/predict")
@@ -21,16 +39,32 @@ async def predict(payload: DetectionRequest, user: dict = Depends(get_current_us
 
     result = classify_landmarks(payload.hands)
 
+    # Only persist to DB when the sign actually changes (or is new) — this
+    # avoids a blocking MongoDB insert on every single frame, which was the
+    # main cause of slow detection. The DB write is also fire-and-forget so
+    # the response returns immediately.
     if result["sign"]:
-        await detections_collection.insert_one(
-            {
-                "user_id": user["_id"],
-                "sign": result["sign"],
-                "confidence": result["confidence"],
-                "category": result["category"],
-                "timestamp": datetime.utcnow(),
-            }
-        )
+        user_id = str(user["_id"])
+        last = _last_saved.get(user_id)
+        if last != result["sign"]:
+            _last_saved[user_id] = result["sign"]
+
+            async def _save():
+                try:
+                    await detections_collection.insert_one(
+                        {
+                            "user_id": user["_id"],
+                            "sign": result["sign"],
+                            "confidence": result["confidence"],
+                            "category": result["category"],
+                            "timestamp": datetime.utcnow(),
+                        }
+                    )
+                except Exception:
+                    pass  # never block detection on a DB failure
+
+            asyncio.create_task(_save())
+
     return result
 
 

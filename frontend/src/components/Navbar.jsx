@@ -8,8 +8,9 @@ import { useTheme } from '../context/ThemeContext'
 const LINKS = [
   { to: '/', label: 'Home' },
   { to: '/live-detection', label: 'Live Detection' },
-  { to: '/collect-data', label: 'Collect Data' },
+  { to: '/practice', label: 'AI Practice' },
   { to: '/learn', label: 'Learn ISL' },
+  { to: '/collect-data', label: 'Collect Data' },
   { to: '/tutorials', label: 'Tutorials' },
   { to: '/dashboard', label: 'Dashboard' },
   { to: '/about', label: 'About' },

@@ -13,6 +13,8 @@ categories_collection = db["categories"]
 feedback_collection = db["feedback"]
 models_collection = db["cnn_models"]
 dataset_samples_collection = db["dataset_samples"]
+sign_images_collection = db["sign_images"]
+practice_sessions_collection = db["practice_sessions"]
 
 
 async def ensure_indexes():
@@ -21,3 +23,5 @@ async def ensure_indexes():
     await detections_collection.create_index("user_id")
     await conversations_collection.create_index("user_id")
     await dataset_samples_collection.create_index("label")
+    await sign_images_collection.create_index("label", unique=True)
+    await practice_sessions_collection.create_index("user_id")

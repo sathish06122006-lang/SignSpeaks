@@ -74,3 +74,8 @@ def classify_landmarks(landmarks: List, seed_hint: str = "") -> dict:
 
 def no_hand_detected_response() -> dict:
     return {"sign": None, "confidence": 0.0, "category": None, "fps": 0.0}
+
+
+def all_sign_labels() -> list:
+    """Every label the mock classifier can emit, for UI filtering."""
+    return [sign for sign, _ in _ALL_SIGNS]
