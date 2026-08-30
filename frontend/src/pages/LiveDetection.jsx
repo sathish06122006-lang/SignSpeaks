@@ -4,10 +4,12 @@ import { useMediaPipeHands } from '../hooks/useMediaPipeHands'
 import { speak } from '../utils/speech'
 import api from '../utils/api'
 import { classifyConfidence, isRecognized, displaySign } from '../services/ConfidenceService'
+import { buildSentence } from '../services/SentenceFormationService'
 import { STATUS, STATUS_META } from '../config/recognition'
 import ConfidenceIndicator from '../components/ConfidenceIndicator'
 import RecognitionStatus from '../components/RecognitionStatus'
 import UnknownSignAlert from '../components/UnknownSignAlert'
+import ContextInterpretation from '../components/ContextInterpretation'
 
 export default function LiveDetection() {
   const videoRef = useRef(null)
@@ -15,11 +17,15 @@ export default function LiveDetection() {
   const [active, setActive] = useState(false)
   const [facingMode, setFacingMode] = useState('user')
   const [sentence, setSentence] = useState('')
+  const [sequence, setSequence] = useState([]) // [{ sign, confidence, recognized, timestamp }]
+  const [partial, setPartial] = useState(false) // context sentence may be incomplete
+  const [sentenceConfidence, setSentenceConfidence] = useState(null)
   const [history, setHistory] = useState([])
   const [lastSign, setLastSign] = useState(null)
   const [backendError, setBackendError] = useState('')
   const [retrying, setRetrying] = useState(false)
   const lastAddedRef = useRef({ sign: null, time: 0 })
+  const sequenceRef = useRef([]) // mirrors `sequence` for synchronous reads
   const pollingRef = useRef(null)
 
   // Tracks up to 2 hands so both single-hand and two-handed signs work.
@@ -49,14 +55,42 @@ export default function LiveDetection() {
         prev && prev.sign === data.sign && prev.confidence === data.confidence ? prev : data
       )
 
-      // Only signs recognised with Medium+ confidence enter the sentence;
-      // low-confidence / Unknown results are shown but never auto-appended.
-      if (data.sign && isRecognized(classifyConfidence(data.confidence))) {
+      // ---- Context-Aware sequence buffer ----
+      // Every prediction with a label enters the sequence so users see the
+      // full flow ([HELLO] [UNKNOWN] [YOU]...). Repeated predictions of the
+      // same sign are filtered via the lastAdded window; UNKNOWN entries
+      // use a slightly longer window so they do not flood the buffer.
+      if (data.sign) {
+        const recognized = isRecognized(classifyConfidence(data.confidence))
+        const displayLabel = recognized ? data.sign : 'UNKNOWN'
         const now = Date.now()
-        if (data.sign !== lastAddedRef.current.sign || now - lastAddedRef.current.time > 1500) {
-          lastAddedRef.current = { sign: data.sign, time: now }
-          setSentence((s) => (s ? `${s} ${data.sign}` : data.sign))
-          setHistory((h) => [{ ...data, timestamp: new Date().toISOString() }, ...h].slice(0, 50))
+        const windowMs = recognized ? 1500 : 2500
+        const gapOk = now - lastAddedRef.current.time > windowMs
+        const labelChanged = lastAddedRef.current.sign !== displayLabel
+
+        if (labelChanged || gapOk) {
+          lastAddedRef.current = { sign: displayLabel, time: now }
+          const entry = {
+            sign: data.sign,
+            confidence: data.confidence,
+            category: data.category || null,
+            recognized,
+            timestamp: new Date().toISOString(),
+          }
+          const nextSequence = [...sequenceRef.current, entry].slice(-12) // keep buffer bounded
+          sequenceRef.current = nextSequence
+          setSequence(nextSequence)
+
+          // Only reliably recognised signs shape the sentence; recognitions
+          // below Medium confidence are shown in the buffer but flagged.
+          const built = buildSentence(nextSequence)
+          setPartial(built.partial)
+          setSentenceConfidence(built.sentenceConfidence)
+          if (built.sentence) setSentence(built.sentence)
+
+          if (recognized) {
+            setHistory((h) => [{ ...data, timestamp: entry.timestamp }, ...h].slice(0, 50))
+          }
         }
       }
     } catch (err) {
@@ -104,13 +138,24 @@ export default function LiveDetection() {
   const handleCopy = () => navigator.clipboard.writeText(sentence)
   const handleClear = () => {
     setSentence('')
+    setSequence([])
+    sequenceRef.current = []
+    setPartial(false)
+    setSentenceConfidence(null)
     setHistory([])
     setLastSign(null)
     setBackendError('')
+    lastAddedRef.current = { sign: null, time: 0 }
   }
   const handleRetry = () => {
     setBackendError('')
     setLastSign(null)
+    // Re-run sentence formation from the current sequence (Retry), then
+    // request a fresh prediction from the backend too.
+    const built = buildSentence(sequenceRef.current)
+    setPartial(built.partial)
+    setSentenceConfidence(built.sentenceConfidence)
+    if (built.sentence) setSentence(built.sentence)
     setRetrying(true)
     runPrediction()
   }
@@ -173,6 +218,16 @@ export default function LiveDetection() {
           )}
         </div>
       )}
+
+      <ContextInterpretation
+        sequence={sequence}
+        sentence={sentence}
+        partial={partial}
+        sentenceConfidence={sentenceConfidence}
+        onClear={handleClear}
+        onRetry={handleRetry}
+        onSpeak={handleSpeak}
+      />
 
       <div className="grid lg:grid-cols-[280px_1fr_320px] gap-6">
         {/* Left Panel */}
