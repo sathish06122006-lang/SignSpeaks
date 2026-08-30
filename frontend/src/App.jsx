@@ -11,6 +11,7 @@ import LearnISL from './pages/LearnISL'
 import Tutorials from './pages/Tutorials'
 import Dashboard from './pages/Dashboard'
 import Practice from './pages/Practice'
+import Emergency from './pages/Emergency'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import Login from './pages/Login'
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/live-detection" element={<ProtectedRoute><LiveDetection /></ProtectedRoute>} />
           <Route path="/practice" element={<ProtectedRoute><Practice /></ProtectedRoute>} />
+          <Route path="/emergency" element={<Emergency />} />
           <Route path="/collect-data" element={<ProtectedRoute><DataCollection /></ProtectedRoute>} />
           <Route path="/learn" element={<LearnISL />} />
           <Route path="/tutorials" element={<Tutorials />} />

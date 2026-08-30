@@ -10,6 +10,7 @@ const LINKS = [
   { to: '/live-detection', label: 'Live Detection' },
   { to: '/practice', label: 'AI Practice' },
   { to: '/learn', label: 'Learn ISL' },
+  { to: '/emergency', label: 'Emergency' },
   { to: '/collect-data', label: 'Collect Data' },
   { to: '/tutorials', label: 'Tutorials' },
   { to: '/dashboard', label: 'Dashboard' },
