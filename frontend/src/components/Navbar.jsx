@@ -13,6 +13,7 @@ const LINKS = [
   { to: '/emergency', label: 'Emergency' },
   { to: '/collect-data', label: 'Collect Data' },
   { to: '/tutorials', label: 'Tutorials' },
+  { to: '/progress', label: 'Progress' },
   { to: '/dashboard', label: 'Dashboard' },
   { to: '/about', label: 'About' },
   { to: '/contact', label: 'Contact' },

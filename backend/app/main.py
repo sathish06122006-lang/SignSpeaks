@@ -5,7 +5,7 @@ import os
 
 from app.config import settings
 from app.database import ensure_indexes
-from app.routes import auth, detection, dashboard, tutorials, admin, dataset, sign_images, practice
+from app.routes import auth, detection, dashboard, tutorials, admin, dataset, sign_images, practice, progress
 
 app = FastAPI(
     title="Sign Speaks API",
@@ -29,6 +29,7 @@ app.include_router(admin.router)
 app.include_router(dataset.router)
 app.include_router(sign_images.router)
 app.include_router(practice.router)
+app.include_router(progress.router)
 
 STATIC_ROOT = os.path.join(os.path.dirname(__file__), "static")
 os.makedirs(STATIC_ROOT, exist_ok=True)
