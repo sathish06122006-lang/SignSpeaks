@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import api from '../utils/api'
 
-const TABS = ['Analytics', 'Users', 'Tutorials', 'Categories', 'Model Upload']
+const TABS = ['Analytics', 'Users', 'Tutorials', 'Sign Images', 'Categories', 'Model Upload']
 
 export default function AdminPanel() {
   const [tab, setTab] = useState('Analytics')
@@ -28,6 +28,7 @@ export default function AdminPanel() {
       {tab === 'Analytics' && <AnalyticsTab />}
       {tab === 'Users' && <UsersTab />}
       {tab === 'Tutorials' && <TutorialsTab />}
+      {tab === 'Sign Images' && <SignImagesTab />}
       {tab === 'Categories' && <CategoriesTab />}
       {tab === 'Model Upload' && <ModelUploadTab />}
     </div>
@@ -175,6 +176,74 @@ function CategoriesTab() {
           </div>
         ))}
         {categories.length === 0 && <p className="opacity-60 text-sm">No categories yet.</p>}
+      </div>
+    </div>
+  )
+}
+
+function SignImagesTab() {
+  const [images, setImages] = useState({})
+  const [label, setLabel] = useState('A')
+  const [category, setCategory] = useState('alphabet')
+  const [file, setFile] = useState(null)
+  const [status, setStatus] = useState('')
+
+  const load = () => api.get('/api/sign-images').then(({ data }) => setImages(data)).catch(() => setImages({}))
+  useEffect(() => { load() }, [])
+
+  const upload = async (e) => {
+    e.preventDefault()
+    if (!file) return
+    const formData = new FormData()
+    formData.append('label', label)
+    formData.append('category', category)
+    formData.append('file', file)
+    await api.post('/api/admin/sign-images', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+    setStatus(`Uploaded image for "${label}"`)
+    setFile(null)
+    load()
+  }
+
+  const remove = async (lbl) => {
+    if (!confirm(`Remove the reference image for "${lbl}"?`)) return
+    await api.delete(`/api/admin/sign-images/${lbl}`)
+    load()
+  }
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <form onSubmit={upload} className="glass rounded-2xl p-5 space-y-3">
+        <h3 className="font-display font-semibold">Upload Sign Reference Image</h3>
+        <p className="text-xs opacity-60">
+          Upload a real, accurate ISL handshape photo/illustration for this label. This is what
+          learners see on the Learn ISL page — use authentic reference images only.
+        </p>
+        <input required placeholder="Label (e.g. A, 5, Hello)" value={label} onChange={(e) => setLabel(e.target.value)} className="w-full rounded-xl bg-black/20 px-4 py-2 outline-none" />
+        <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full rounded-xl bg-black/20 px-4 py-2 outline-none">
+          <option value="alphabet">Alphabet</option>
+          <option value="number">Number</option>
+          <option value="word">Word</option>
+          <option value="phrase">Phrase</option>
+        </select>
+        <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} className="w-full text-sm" />
+        <button type="submit" className="w-full py-2 rounded-full bg-brand-gradient text-white font-semibold">Upload Image</button>
+        {status && <p className="text-teal-light text-sm">{status}</p>}
+      </form>
+
+      <div className="glass rounded-2xl p-5">
+        <h3 className="font-display font-semibold mb-3">Uploaded Images ({Object.keys(images).length})</h3>
+        <div className="grid grid-cols-3 gap-3 max-h-96 overflow-y-auto">
+          {Object.entries(images).map(([lbl, url]) => (
+            <div key={lbl} className="relative group">
+              <img src={`${api.defaults.baseURL}${url}`} alt={lbl} className="w-full aspect-square object-cover rounded-xl" />
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center rounded-xl gap-1">
+                <span className="text-xs font-semibold">{lbl}</span>
+                <button onClick={() => remove(lbl)} className="text-xs text-coral font-semibold">Remove</button>
+              </div>
+            </div>
+          ))}
+          {Object.keys(images).length === 0 && <p className="opacity-60 text-sm col-span-3">No images uploaded yet.</p>}
+        </div>
       </div>
     </div>
   )

@@ -78,7 +78,7 @@ export default function About() {
             </div>
           ))}
         </div>
-        <p className="text-center mt-4 opacity-70 text-sm">Mentor: Ms. Ramani</p>
+        <p className="text-center mt-4 opacity-70 text-sm"></p>
       </div>
     </div>
   )

@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { FiMail, FiPhone, FiMapPin } from 'react-icons/fi'
 import api from '../utils/api'
-
+ 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [status, setStatus] = useState('')
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
@@ -16,19 +16,20 @@ export default function Contact() {
       setStatus('Something went wrong. Please try again later.')
     }
   }
-
+ 
   return (
     <div className="max-w-6xl mx-auto px-6 py-16 grid lg:grid-cols-2 gap-10">
       <div>
         <h1 className="font-display text-3xl font-bold mb-4">Contact Us</h1>
         <p className="opacity-70 mb-8">Questions, feedback, or partnership ideas — we'd love to hear from you.</p>
-
+ 
         <div className="space-y-4 mb-8">
-          <div className="flex items-center gap-3 opacity-80"><FiMail /> contact@signspeaks.app</div>
-          <div className="flex items-center gap-3 opacity-80"><FiPhone /> +91 98765 43210</div>
+          <p className="font-semibold">Gowthaami</p>
+          <div className="flex items-center gap-3 opacity-80"><FiMail /> gowthaamiselvam@gmail.com</div>
+          <div className="flex items-center gap-3 opacity-80"><FiPhone /> +91 94443 58630</div>
           <div className="flex items-center gap-3 opacity-80"><FiMapPin /> Chennai, Tamil Nadu, India</div>
         </div>
-
+ 
         <div className="glass rounded-2xl overflow-hidden">
           <iframe
             title="Location map"
@@ -38,7 +39,7 @@ export default function Contact() {
           />
         </div>
       </div>
-
+ 
       <form onSubmit={handleSubmit} className="glass rounded-2xl p-8 space-y-4 h-fit">
         <h2 className="font-display text-xl font-semibold mb-2">Send Feedback</h2>
         <div>
@@ -70,3 +71,4 @@ export default function Contact() {
     </div>
   )
 }
+

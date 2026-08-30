@@ -103,6 +103,9 @@ def build_model(input_dim: int, num_classes: int):
     return model
 
 
+from sklearn.utils.class_weight import compute_class_weight
+
+
 def main():
     print("Loading dataset...")
     features, raw_labels = load_dataset()
@@ -119,6 +122,16 @@ def main():
     X_train = X_train.reshape(-1, features.shape[1], 1)
     X_test = X_test.reshape(-1, features.shape[1], 1)
 
+    # Signs with fewer captured samples (e.g. a letter you captured 42
+    # times vs another captured 150 times) would otherwise be under-learned.
+    # Class weights make each sign count equally regardless of how many
+    # samples you happened to collect for it.
+    class_weights_arr = compute_class_weight(class_weight="balanced", classes=np.unique(y_train), y=y_train)
+    class_weight = {i: w for i, w in enumerate(class_weights_arr)}
+    print("Class weights (higher = fewer samples, weighted up):")
+    for i, w in class_weight.items():
+        print(f"  {encoder.classes_[i]}: {w:.2f}")
+
     model = build_model(features.shape[1], num_classes)
     model.summary()
 
@@ -131,6 +144,7 @@ def main():
         epochs=100,
         batch_size=16,
         callbacks=[early_stop],
+        class_weight=class_weight,
         verbose=2,
     )
 
