@@ -7,10 +7,10 @@ import { STATUS } from '../config/recognition'
  * an honest "Confidence unavailable" state is rendered instead of a number.
  */
 const BAR_COLORS = {
-  high: { track: 'bg-teal/20', fill: 'bg-teal-light' },
-  medium: { track: 'bg-indigoAccent/20', fill: 'bg-indigoAccent-light' },
-  low: { track: 'bg-coral/20', fill: 'bg-coral' },
-  none: { track: 'bg-white/10', fill: 'bg-white/30' },
+  high: { track: 'bg-brandGreen/20', fill: 'bg-brandGreen' },
+  medium: { track: 'bg-coral/20', fill: 'bg-coral' },
+  low: { track: 'bg-coralDeep/20', fill: 'bg-coralDeep' },
+  none: { track: 'bg-ivory/10', fill: 'bg-ivory/40' },
 }
 
 export default function ConfidenceIndicator({ level, value }) {

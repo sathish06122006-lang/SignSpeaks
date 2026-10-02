@@ -17,8 +17,8 @@ export default function UnknownSignAlert({ status }) {
     : 'The current model returned no confidence score for this prediction.')
 
   return (
-    <div role="alert" className="rounded-xl border border-coral/40 bg-coral/10 p-3 space-y-1">
-      <div className="flex items-center gap-2 text-sm font-semibold text-coral">
+    <div role="alert" className="rounded-xl border border-coralDeep/40 bg-coralDeep/10 p-3 space-y-1">
+      <div className="flex items-center gap-2 text-sm font-semibold text-coralDeep">
         {isUnknown ? <FiAlertTriangle aria-hidden /> : <FiHelpCircle aria-hidden />}
         {isUnknown ? '⚠️ Sign unclear / Unknown sign' : '⚠️ Confidence unavailable'}
       </div>

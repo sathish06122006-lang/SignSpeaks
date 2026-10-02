@@ -70,13 +70,19 @@ async def clear_label(label: str, user: dict = Depends(get_current_user)):
     return {"deleted": result.deleted_count}
 
 
+
 @router.get("/export")
-async def export_dataset(user: dict = Depends(get_current_user)):
-    """Export the full collected dataset as CSV for training/train_model.py.
+async def export_dataset(category: str = None, user: dict = Depends(get_current_user)):
+    """Export the collected dataset as CSV for training/train_model.py.
     Each row: label, category, num_hands, then 63 raw x/y/z columns for the
     Right-hand slot, then 63 for the Left-hand slot (zero-filled if that
-    hand wasn't present in the sample)."""
-    cursor = dataset_samples_collection.find({})
+    hand wasn't present in the sample). Optionally filter to just one
+    category (alphabet / number / word / phrase) instead of exporting
+    everything ever collected."""
+    query = {"category": category} if category else {}
+    cursor = dataset_samples_collection.find(query)
+
+
     buffer = io.StringIO()
     writer = csv.writer(buffer)
 

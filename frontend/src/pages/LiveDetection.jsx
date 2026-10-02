@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback } from 'react'
+﻿import { useRef, useState, useEffect, useCallback } from 'react'
 import { FiCamera, FiCameraOff, FiRefreshCw, FiVolume2, FiCopy, FiTrash2, FiDownload, FiSave, FiRotateCcw, FiAlertTriangle } from 'react-icons/fi'
 import { useMediaPipeHands } from '../hooks/useMediaPipeHands'
 import { speak } from '../utils/speech'
@@ -186,7 +186,7 @@ export default function LiveDetection() {
 
   const handleDownloadPdf = () => {
     // Client-side simple text download; full PDF export with styling is
-    // available per-conversation from the Dashboard once saved.
+    // available per-conversation from My Progress once saved.
     const blob = new Blob([sentence || '(empty)'], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -203,16 +203,16 @@ export default function LiveDetection() {
       {(cameraError || backendError) && (
         <div className="mb-6 space-y-2">
           {cameraError && (
-            <div role="alert" className="flex items-center gap-2 rounded-xl border border-coral/40 bg-coral/10 px-4 py-3 text-sm text-coral">
+            <div role="alert" className="flex items-center gap-2 rounded-xl border border-coralDeep/40 bg-coralDeep/10 px-4 py-3 text-sm text-coralDeep">
               <FiAlertTriangle className="shrink-0" />
               <span>{cameraError}</span>
             </div>
           )}
           {backendError && (
-            <div role="alert" className="flex items-center gap-2 rounded-xl border border-coral/40 bg-coral/10 px-4 py-3 text-sm text-coral">
+            <div role="alert" className="flex items-center gap-2 rounded-xl border border-coralDeep/40 bg-coralDeep/10 px-4 py-3 text-sm text-coralDeep">
               <FiAlertTriangle className="shrink-0" />
               <span>{backendError}</span>
-              <button onClick={handleRetry} className="ml-auto shrink-0 px-3 py-1 rounded-full glass text-xs font-semibold hover:opacity-80">
+              <button onClick={handleRetry} className="ml-auto shrink-0 px-3 py-1 text-xs btn-secondary">
                 Retry
               </button>
             </div>
@@ -237,21 +237,21 @@ export default function LiveDetection() {
         <div className="glass rounded-2xl p-5 space-y-4">
           <h3 className="font-display font-semibold">Camera</h3>
           <video ref={videoRef} className="hidden" playsInline muted />
-          <div className={`text-xs px-3 py-1 rounded-full inline-block ${active ? 'bg-teal/20 text-teal-light' : 'bg-white/10 opacity-70'}`}>
+          <div className={`text-xs px-3 py-1 rounded-full inline-block ${active ? 'bg-brandGreen/20 text-brandGreen' : 'bg-white/10 opacity-70'}`}>
             {active ? (handDetected ? `${hands.length} hand${hands.length > 1 ? 's' : ''} detected` : 'No hand detected') : 'Camera off'}
           </div>
           <div className="flex flex-col gap-2">
-            <button onClick={startCamera} disabled={active} className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-brand-gradient text-white text-sm font-semibold disabled:opacity-40">
+            <button onClick={startCamera} disabled={active} className="flex items-center justify-center gap-2 px-4 py-2 text-sm btn-primary disabled:opacity-40">
               <FiCamera /> Start Camera
             </button>
-            <button onClick={stopCamera} disabled={!active} className="flex items-center justify-center gap-2 px-4 py-2 rounded-full glass text-sm font-semibold disabled:opacity-40">
+            <button onClick={stopCamera} disabled={!active} className="flex items-center justify-center gap-2 px-4 py-2 text-sm btn-secondary disabled:opacity-40">
               <FiCameraOff /> Stop Camera
             </button>
-            <button onClick={switchCamera} className="flex items-center justify-center gap-2 px-4 py-2 rounded-full glass text-sm font-semibold">
+            <button onClick={switchCamera} className="flex items-center justify-center gap-2 px-4 py-2 text-sm btn-secondary">
               <FiRefreshCw /> Switch Camera
             </button>
           </div>
-          <p className="text-xs opacity-50">Facing: {facingMode === 'user' ? 'Front' : 'Back'}</p>
+          <p className="text-xs opacity-60">Facing: {facingMode === 'user' ? 'Front' : 'Back'}</p>
         </div>
 
         {/* Center Panel */}
@@ -273,7 +273,7 @@ export default function LiveDetection() {
         <div className="glass rounded-2xl p-5 space-y-4">
           <div className="space-y-3">
             <h3 className="font-display font-semibold mb-1">Current Sign</h3>
-            <div className={`text-4xl font-display font-extrabold ${detectedLabel === 'UNKNOWN' ? 'text-coral' : 'text-gradient'}`}>
+            <div className={`text-4xl font-display font-bold ${detectedLabel === 'UNKNOWN' ? 'text-coralDeep' : 'text-gradient'}`}>
               {detectedLabel}
             </div>
 
@@ -307,24 +307,24 @@ export default function LiveDetection() {
               value={sentence}
               onChange={(e) => setSentence(e.target.value)}
               rows={3}
-              className="w-full rounded-xl bg-black/20 p-3 text-sm outline-none"
+              className="w-full rounded-xl bg-ink/40 p-3 text-sm outline-none"
               placeholder="Detected signs form a sentence here…"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <button onClick={handleSpeak} className="flex items-center justify-center gap-1 px-3 py-2 rounded-full glass text-xs font-semibold"><FiVolume2 /> Speak</button>
-            <button onClick={handleCopy} className="flex items-center justify-center gap-1 px-3 py-2 rounded-full glass text-xs font-semibold"><FiCopy /> Copy</button>
-            <button onClick={handleClear} className="flex items-center justify-center gap-1 px-3 py-2 rounded-full glass text-xs font-semibold"><FiTrash2 /> Clear</button>
-            <button onClick={handleDownloadPdf} className="flex items-center justify-center gap-1 px-3 py-2 rounded-full glass text-xs font-semibold"><FiDownload /> Export</button>
-            <button onClick={handleRetry} disabled={retrying} className="flex items-center justify-center gap-1 px-3 py-2 rounded-full glass text-xs font-semibold disabled:opacity-40"><FiRotateCcw /> {retrying ? 'Retrying…' : 'Retry'}</button>
-            <button onClick={handleSave} className="col-span-2 flex items-center justify-center gap-1 px-3 py-2 rounded-full bg-brand-gradient text-white text-xs font-semibold"><FiSave /> Save Conversation</button>
+            <button onClick={handleSpeak} className="flex items-center justify-center gap-1 px-3 py-2 text-xs btn-secondary"><FiVolume2 /> Speak</button>
+            <button onClick={handleCopy} className="flex items-center justify-center gap-1 px-3 py-2 text-xs btn-secondary"><FiCopy /> Copy</button>
+            <button onClick={handleClear} className="flex items-center justify-center gap-1 px-3 py-2 text-xs btn-secondary"><FiTrash2 /> Clear</button>
+            <button onClick={handleDownloadPdf} className="flex items-center justify-center gap-1 px-3 py-2 text-xs btn-secondary"><FiDownload /> Export</button>
+            <button onClick={handleRetry} disabled={retrying} className="flex items-center justify-center gap-1 px-3 py-2 text-xs btn-secondary disabled:opacity-40"><FiRotateCcw /> {retrying ? 'Retrying…' : 'Retry'}</button>
+            <button onClick={handleSave} className="col-span-2 flex items-center justify-center gap-1 px-3 py-2 text-xs btn-primary"><FiSave /> Save Conversation</button>
           </div>
 
           <div>
             <h4 className="text-sm font-semibold opacity-80 mb-2">Detection History</h4>
             <div className="max-h-40 overflow-y-auto space-y-1">
-              {history.length === 0 && <p className="text-xs opacity-50">No signs detected yet.</p>}
+              {history.length === 0 && <p className="text-xs opacity-60">No signs detected yet.</p>}
               {history.map((h, i) => (
                 <div key={i} className="flex justify-between text-xs opacity-80 border-b border-white/5 py-1">
                   <span>{h.sign}</span>

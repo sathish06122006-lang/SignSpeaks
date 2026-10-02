@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
+﻿import { useState, useRef, useCallback, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FiHeadphones, FiX, FiImage } from 'react-icons/fi'
@@ -6,6 +6,9 @@ import { speak } from '../utils/speech'
 import api from '../utils/api'
 
 import { MODULES, publicImageSrc } from '../data/signCatalog'
+
+const normalizeKey = (label) =>
+  label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
 
 function playTone(correct) {
   try {
@@ -100,7 +103,7 @@ export default function LearnISL() {
               key={m.key}
               onClick={() => switchModule(m.key)}
               className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
-                active === m.key ? 'bg-brand-gradient text-white' : 'glass opacity-80'
+                active === m.key ? 'btn-primary' : 'btn-secondary opacity-80'
               }`}
             >
               {m.title}
@@ -112,14 +115,14 @@ export default function LearnISL() {
         {!practiceMode ? (
           <button
             onClick={startPractice}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-brand-gradient text-white text-sm font-semibold"
+            className="flex items-center gap-2 px-4 py-2 text-sm btn-primary"
           >
             <FiHeadphones /> Practice by Ear
           </button>
         ) : (
           <button
             onClick={stopPractice}
-            className="flex items-center gap-2 px-4 py-2 rounded-full glass text-coral text-sm font-semibold"
+            className="flex items-center gap-2 px-4 py-2 text-sm btn-secondary text-coral"
           >
             <FiX /> Exit Practice
           </button>
@@ -132,7 +135,7 @@ export default function LearnISL() {
             <p className="font-display font-semibold">
               🔊 Listen, then click the matching sign
               {feedback && (
-                <span className={`ml-3 text-sm ${feedback === 'correct' ? 'text-teal-light' : 'text-coral'}`}>
+                <span className={`ml-3 text-sm ${feedback === 'correct' ? 'text-brandGreen' : 'text-coral'}`}>
                   {feedback === 'correct' ? 'Correct!' : `That was ${target}`}
                 </span>
               )}
@@ -141,7 +144,7 @@ export default function LearnISL() {
           </div>
           <button
             onClick={() => target && speak(module.speakPhrase(target), { rate: 0.9 })}
-            className="px-4 py-2 rounded-full glass text-xs font-semibold"
+            className="px-4 py-2 text-xs btn-secondary"
           >
             🔁 Replay Sound
           </button>
@@ -152,7 +155,7 @@ export default function LearnISL() {
         key={active}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4"
+        className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4 [perspective:1200px]"
       >
         {module.items.map((item) => {
           const isTarget = practiceMode && target === item
@@ -161,8 +164,8 @@ export default function LearnISL() {
             <button
               key={item}
               onClick={() => (practiceMode ? handleGuess(item) : openSign(item))}
-              className={`glass rounded-2xl p-5 flex flex-col items-center gap-2 hover:-translate-y-1 transition-transform ${
-                showResult ? (feedback === 'correct' ? 'ring-2 ring-teal-light' : 'ring-2 ring-coral') : ''
+              className={`glass rounded-2xl p-5 flex flex-col items-center gap-2 card-lift ${
+                showResult ? (feedback === 'correct' ? 'ring-2 ring-brandGreen' : 'ring-2 ring-coral') : ''
               }`}
             >
               <div className="w-14 h-14 rounded-full bg-brand-gradient flex items-center justify-center font-display font-bold text-white text-lg relative">
@@ -176,10 +179,10 @@ export default function LearnISL() {
         })}
       </motion.div>
 
-      <div className="glass rounded-2xl p-6 mt-10">
+      <div className="glass rounded-2xl p-6 mt-10 card-lift">
         <h3 className="font-display font-semibold mb-2">Daily Practice Streak</h3>
         <p className="opacity-70 text-sm">
-          Visit the Dashboard to track your practice time, accuracy, and weekly progress across
+          Visit My Progress to track your practice time, accuracy, and weekly progress across
           all lesson modules.
         </p>
       </div>
@@ -196,7 +199,7 @@ export default function LearnISL() {
               className="glass rounded-2xl p-6 max-w-sm w-full text-center relative"
               onClick={(e) => e.stopPropagation()}
             >
-              <button onClick={() => setViewing(null)} className="absolute top-3 right-3 p-2 rounded-full glass">
+              <button onClick={() => setViewing(null)} className="absolute top-3 right-3 p-2 btn-secondary">
                 <FiX />
               </button>
               <h3 className="font-display text-2xl font-bold mb-1">{viewing}</h3>
@@ -206,22 +209,22 @@ export default function LearnISL() {
                 <img
                   src={publicImageSrc(viewing)}
                   alt={`ISL sign for ${viewing}`}
-                  className="w-full max-h-72 object-contain rounded-xl mb-4 bg-black/20"
+                  className="w-full max-h-72 object-contain rounded-xl mb-4 bg-ink/40"
                   onError={() => setPublicImageOk(false)}
                 />
               )}
 
-              {publicImageOk === false && signImages[viewing] && (
-                <img
-                  src={`${api.defaults.baseURL}${signImages[viewing]}`}
-                  alt={`ISL sign for ${viewing}`}
-                  className="w-full max-h-72 object-contain rounded-xl mb-4 bg-black/20"
-                  onError={() => setPublicImageOk('none')}
-                />
-              )}
+               {publicImageOk === false && signImages[normalizeKey(viewing)] && (
+                 <img
+                   src={`${api.defaults.baseURL}${signImages[normalizeKey(viewing)]}`}
+                   alt={`ISL sign for ${viewing}`}
+                   className="w-full max-h-72 object-contain rounded-xl mb-4 bg-ink/40"
+                   onError={() => setPublicImageOk('none')}
+                 />
+               )}
 
-              {publicImageOk !== true && (!signImages[viewing] || publicImageOk === 'none') && (
-                <div className="w-full aspect-square rounded-xl mb-4 bg-black/20 flex flex-col items-center justify-center gap-2 opacity-60">
+               {publicImageOk !== true && (!signImages[normalizeKey(viewing)] || publicImageOk === 'none') && (
+                <div className="w-full aspect-square rounded-xl mb-4 bg-ink/40 flex flex-col items-center justify-center gap-2 opacity-60">
                   <FiImage size={32} />
                   <p className="text-xs px-4">
                     No reference image found. Add <code>{viewing}.jpg</code> to
@@ -232,13 +235,13 @@ export default function LearnISL() {
 
               <button
                 onClick={() => speakItem(viewing)}
-                className="px-4 py-2 rounded-full bg-brand-gradient text-white text-sm font-semibold"
+                className="px-4 py-2 text-sm btn-primary"
               >
                 🔊 Hear it again
               </button>
               <Link
                 to={`/practice?target=${encodeURIComponent(viewing)}`}
-                className="mt-2 block px-4 py-2 rounded-full glass text-sm font-semibold hover:opacity-80"
+                className="mt-2 block px-4 py-2 text-sm btn-secondary"
               >
                 Practise this sign →
               </Link>

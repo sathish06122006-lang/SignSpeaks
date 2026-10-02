@@ -11,6 +11,12 @@ STATIC_DIR = os.path.join(os.path.dirname(__file__), "..", "static", "sign_image
 os.makedirs(STATIC_DIR, exist_ok=True)
 
 
+def _normalize_label(label: str) -> str:
+    """Lowercase + collapse spaces to hyphens so 'Thank You', 'thank you',
+    and 'thankyou' all resolve to the same canonical key 'thank-you'."""
+    return "".join(c if c.isalnum() else "-" for c in label.lower()).strip("-")
+
+
 def _safe_filename(label: str, original_filename: str) -> str:
     ext = os.path.splitext(original_filename)[1].lower() or ".jpg"
     safe_label = "".join(c for c in label if c.isalnum() or c in ("-", "_")).strip() or "sign"
@@ -19,13 +25,15 @@ def _safe_filename(label: str, original_filename: str) -> str:
 
 @router.get("/api/sign-images")
 async def list_sign_images():
-    """Public: returns { label: image_url } for every uploaded reference
-    image, so Learn ISL can show the real handshape when a sign is
-    clicked. Signs without an uploaded image simply won't have an entry."""
+    """Public: returns { normalized_label: image_url } for every uploaded
+    reference image, so Learn ISL / Practice can show the real handshape when a
+    sign is clicked. Keys are normalised (lowercase, spaces→hyphens) so
+    'Thank You', 'thank you', and 'thankyou' all map to 'thank-you'."""
     cursor = sign_images_collection.find({})
     result = {}
     async for doc in cursor:
-        result[doc["label"]] = doc["image_url"]
+        key = _normalize_label(doc["label"])
+        result[key] = doc["image_url"]
     return result
 
 
@@ -66,7 +74,12 @@ async def upload_sign_image(
 
 @router.delete("/api/admin/sign-images/{label}")
 async def delete_sign_image(label: str, admin: dict = Depends(get_current_admin)):
-    doc = await sign_images_collection.find_one({"label": label})
+    norm = _normalize_label(label)
+    doc = None
+    async for d in sign_images_collection.find({}):
+        if _normalize_label(d["label"]) == norm:
+            doc = d
+            break
     if doc:
         filepath = os.path.join(STATIC_DIR, os.path.basename(doc["image_url"]))
         if os.path.exists(filepath):

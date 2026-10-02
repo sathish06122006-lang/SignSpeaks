@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+﻿import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { FiCamera, FiCameraOff, FiCheckCircle, FiChevronRight, FiImage, FiX, FiAlertTriangle } from 'react-icons/fi'
 import { useMediaPipeHands } from '../hooks/useMediaPipeHands'
@@ -182,7 +182,7 @@ const pickNext = () => {
         : 'Model status unknown'
   const sourceTone =
     labelsMeta.source === 'model'
-      ? 'bg-teal/20 text-teal-light border-teal/40'
+      ? 'bg-brandGreen/20 text-brandGreen border-brandGreen/40'
       : 'bg-white/10 opacity-70 border-white/10'
 return (
     <div className="max-w-7xl mx-auto px-6 py-10">
@@ -198,12 +198,12 @@ return (
       {(cameraError || backendError) && (
         <div className="mb-6 space-y-2">
           {cameraError && (
-            <div role="alert" className="flex items-center gap-2 rounded-xl border border-coral/40 bg-coral/10 px-4 py-3 text-sm text-coral">
+            <div role="alert" className="flex items-center gap-2 rounded-xl border border-coralDeep/40 bg-coralDeep/10 px-4 py-3 text-sm text-coralDeep">
               <FiAlertTriangle className="shrink-0" /> {cameraError}
             </div>
           )}
           {backendError && (
-            <div role="alert" className="flex items-center gap-2 rounded-xl border border-coral/40 bg-coral/10 px-4 py-3 text-sm text-coral">
+            <div role="alert" className="flex items-center gap-2 rounded-xl border border-coralDeep/40 bg-coralDeep/10 px-4 py-3 text-sm text-coralDeep">
               <FiAlertTriangle className="shrink-0" /> {backendError}
             </div>
           )}
@@ -234,10 +234,10 @@ return (
                       title={sup ? 'Practice this sign' : 'Not in the current model'}
                       className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition ${
                         selected
-                          ? 'bg-brand-gradient text-white border-transparent'
+                          ? 'btn-primary border-transparent'
                           : sup
                             ? 'glass hover:opacity-80'
-                            : 'bg-white/5 opacity-40 cursor-not-allowed'
+                            : 'bg-ink/20 opacity-40 cursor-not-allowed'
                       }`}
                     >
                       {item}
@@ -269,34 +269,35 @@ return (
                 </div>
               </div>
 <div className="flex flex-wrap gap-2">
-                  <button onClick={() => setShowViewer(true)} className="flex items-center gap-1 px-3 py-2 rounded-full glass text-xs font-semibold">
+                  <button onClick={() => setShowViewer(true)} className="flex items-center gap-1 px-3 py-2 text-xs btn-secondary">
                     <FiImage /> View reference
                   </button>
                   {!active ? (
-                    <button onClick={startCamera} className="flex items-center gap-1 px-3 py-2 rounded-full bg-brand-gradient text-white text-xs font-semibold">
+                    <button onClick={startCamera} className="flex items-center gap-1 px-3 py-2 text-xs btn-primary">
                       <FiCamera /> Start Camera
                     </button>
                   ) : (
-                    <button onClick={stopCamera} className="flex items-center gap-1 px-3 py-2 rounded-full glass text-xs font-semibold">
+                    <button onClick={stopCamera} className="flex items-center gap-1 px-3 py-2 text-xs btn-secondary">
                       <FiCameraOff /> Stop
                     </button>
                   )}
-                  <button onClick={pickNext} className="flex items-center gap-1 px-3 py-2 rounded-full glass text-xs font-semibold">
+                  <button onClick={pickNext} className="flex items-center gap-1 px-3 py-2 text-xs btn-secondary">
                     Next Sign
                   </button>
                 </div>
 
                 {/* Camera + live recognition */}
                 <div className="glass rounded-2xl p-5">
+                  <video ref={videoRef} className="hidden" playsInline muted />
                   <div className="grid md:grid-cols-2 gap-5">
-                    <div className="rounded-xl bg-black/30 flex flex-col items-center justify-center min-h-[260px] overflow-hidden">
+                    <div className="rounded-xl bg-ink/40 flex flex-col items-center justify-center min-h-[260px] overflow-hidden">
                       {active ? (
                         <canvas ref={canvasRef} className="w-full rounded-xl" />
                       ) : (
                         <div className="text-center opacity-60 p-6">
                           <FiCamera className="text-4xl mx-auto mb-2" />
                           <p className="text-sm">Start the camera and perform the {target} sign.</p>
-                          <button onClick={switchCamera} className="mt-3 px-3 py-1 rounded-full glass text-xs font-semibold">
+                          <button onClick={switchCamera} className="mt-3 px-3 py-1 text-xs btn-secondary">
                             Use {facingMode === 'user' ? 'back' : 'front'} camera
                           </button>
                         </div>
@@ -305,7 +306,7 @@ return (
 
                     <div className="space-y-3">
                       <h4 className="text-sm font-semibold opacity-80">Live Recognition</h4>
-                      <div className={`text-4xl font-display font-extrabold ${liveLabel === 'UNKNOWN' ? 'text-coral' : 'text-gradient'}`}>
+                      <div className={`text-4xl font-display font-bold ${liveLabel === 'UNKNOWN' ? 'text-coralDeep' : 'text-gradient'}`}>
                         {active ? liveLabel || '…' : '—'}
                       </div>
                       <div className="flex flex-wrap items-center gap-3">
@@ -317,7 +318,7 @@ return (
                       <p className="text-xs opacity-60">{fps} FPS{active && !handDetected ? ' · position your hand in frame' : ''}</p>
                       {liveStatus && liveResult?.sign && <UnknownSignAlert status={liveStatus} />}
                       {liveMatch && (
-                        <p className="flex items-center gap-1.5 text-sm text-teal-light border border-teal/40 bg-teal/10 rounded-lg px-3 py-2">
+                        <p className="flex items-center gap-1.5 text-sm text-brandGreen border border-brandGreen/40 bg-brandGreen/10 rounded-lg px-3 py-2">
                           <FiCheckCircle className="shrink-0" /> Looking correct! Press <strong>Check Signature</strong> to record this attempt.
                         </p>
                       )}
@@ -327,7 +328,7 @@ return (
                   <button
                     onClick={handleCheck}
                     disabled={checking || !active}
-                    className="mt-5 w-full py-3 rounded-full bg-brand-gradient text-white font-semibold disabled:opacity-40"
+                    className="mt-5 w-full py-3 btn-primary disabled:opacity-40"
                   >
                     {checking ? 'Recording attempt…' : 'Check Signature'}
                   </button>
@@ -337,17 +338,17 @@ return (
                   <div className="glass rounded-2xl p-5 space-y-3">
                     <div className="flex items-center justify-between gap-2 flex-wrap">
                       <h4 className="font-display font-semibold">Feedback</h4>
-                      <button onClick={handleClearAttempts} className="px-3 py-1 rounded-full glass text-xs font-semibold text-coral">
+                      <button onClick={handleClearAttempts} className="px-3 py-1 text-xs btn-secondary text-coral">
                         Clear attempts
                       </button>
                     </div>
 
                     <div className={`rounded-xl border p-4 flex items-start gap-3 ${
                       lastAttempt.result === 'correct'
-                        ? 'border-teal/40 bg-teal/10'
+                        ? 'border-brandGreen/40 bg-brandGreen/10'
                         : lastAttempt.result === 'incorrect'
-                          ? 'border-coral/40 bg-coral/10'
-                          : 'border-white/10 bg-black/20'
+                          ? 'border-coralDeep/40 bg-coralDeep/10'
+                          : 'border-ivory/15 bg-ink/40'
                     }`}>
                       <div className="text-2xl shrink-0">
                         {lastAttempt.result === 'correct' ? '✅' : lastAttempt.result === 'incorrect' ? '❌' : '⚠️'}
@@ -369,22 +370,22 @@ return (
                     </div>
 
                     <div className="grid grid-cols-3 gap-2 text-center">
-                      <div className="rounded-xl bg-black/20 p-3">
+                      <div className="rounded-xl bg-ink/40 p-3">
                         <p className="text-2xl font-display font-bold text-gradient">{attempts.length}</p>
                         <p className="text-[10px] uppercase tracking-wide opacity-60">Attempts</p>
                       </div>
-                      <div className="rounded-xl bg-black/20 p-3">
-                        <p className="text-2xl font-display font-bold text-teal-light">{correctCount}</p>
+                      <div className="rounded-xl bg-ink/40 p-3">
+                        <p className="text-2xl font-display font-bold text-brandGreen">{correctCount}</p>
                         <p className="text-[10px] uppercase tracking-wide opacity-60">Correct</p>
                       </div>
-                      <div className="rounded-xl bg-black/20 p-3">
-                        <p className="text-2xl font-display font-bold text-indigoAccent-light">{score !== null ? `${score}%` : '—'}</p>
+                      <div className="rounded-xl bg-ink/40 p-3">
+                        <p className="text-2xl font-display font-bold text-violet">{score !== null ? `${score}%` : '—'}</p>
                         <p className="text-[10px] uppercase tracking-wide opacity-60">Score</p>
                       </div>
                     </div>
 
                     {saveError && (
-                      <p className="text-xs text-coral border border-coral/30 bg-coral/10 rounded-lg px-3 py-2">{saveError}</p>
+                      <p className="text-xs text-coralDeep border border-coralDeep/30 bg-coralDeep/10 rounded-lg px-3 py-2">{saveError}</p>
                     )}
 
                     {attempts.length > 1 && (
@@ -411,7 +412,7 @@ return (
       {showViewer && target && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-6" onClick={() => setShowViewer(false)}>
           <div className="glass rounded-2xl p-6 max-w-sm w-full text-center relative" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setShowViewer(false)} className="absolute top-3 right-3 p-2 rounded-full glass" aria-label="Close reference">
+            <button onClick={() => setShowViewer(false)} className="absolute top-3 right-3 p-2 btn-secondary" aria-label="Close reference">
               <FiX />
             </button>
             <h3 className="font-display text-2xl font-bold mb-1">{target}</h3>
@@ -419,10 +420,10 @@ return (
             <img
               src={publicImageSrc(target)}
               alt={`ISL sign for ${target}`}
-              className="w-full max-h-72 object-contain rounded-xl mb-4 bg-black/20"
+              className="w-full max-h-72 object-contain rounded-xl mb-4 bg-ink/40"
               onError={(e) => { e.currentTarget.style.display = 'none' }}
             />
-            <button onClick={() => speak(target, { voiceGender: 'female' })} className="px-4 py-2 rounded-full bg-brand-gradient text-white text-sm font-semibold">
+            <button onClick={() => speak(target, { voiceGender: 'female' })} className="px-4 py-2 text-sm btn-primary">
               🔊 Hear it again
             </button>
           </div>

@@ -17,7 +17,7 @@ export default function AccessibilityPanel() {
               <span>Dark / Light mode</span>
               <button
                 onClick={toggleTheme}
-                className="px-3 py-1 rounded-full bg-brand-gradient text-white text-xs font-semibold"
+                className="px-3 py-1 text-xs btn-primary"
               >
                 {theme === 'dark' ? 'Dark' : 'Light'}
               </button>
@@ -46,7 +46,7 @@ export default function AccessibilityPanel() {
                   'Accessibility panel open. You can toggle dark mode, large text, and high contrast here.'
                 )
               }
-              className="mt-1 text-xs font-semibold text-teal-light text-left"
+              className="mt-1 text-xs font-semibold text-violet hover:text-ivory text-left"
             >
               🔊 Read this panel aloud
             </button>
@@ -59,7 +59,7 @@ export default function AccessibilityPanel() {
       <button
         onClick={() => setOpen(!open)}
         aria-label="Open accessibility settings"
-        className="w-12 h-12 rounded-full bg-brand-gradient text-white flex items-center justify-center shadow-glass text-xl"
+        className="w-12 h-12 btn-primary flex items-center justify-center shadow-glass text-xl"
       >
         {open ? <FiX /> : <FiSettings />}
       </button>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { FiMail, FiPhone, FiMapPin } from 'react-icons/fi'
 import api from '../utils/api'
  
@@ -30,7 +30,7 @@ export default function Contact() {
           <div className="flex items-center gap-3 opacity-80"><FiMapPin /> Chennai, Tamil Nadu, India</div>
         </div>
  
-        <div className="glass rounded-2xl overflow-hidden">
+        <div className="glass rounded-2xl overflow-hidden card-lift">
           <iframe
             title="Location map"
             src="https://www.google.com/maps?q=Chennai,India&output=embed"
@@ -46,27 +46,27 @@ export default function Contact() {
           <label className="text-sm opacity-80">Name</label>
           <input
             required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full mt-1 rounded-xl bg-black/20 px-4 py-2 outline-none"
+            className="w-full mt-1 rounded-xl bg-ink/40 px-4 py-2 outline-none"
           />
         </div>
         <div>
           <label className="text-sm opacity-80">Email</label>
           <input
             type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className="w-full mt-1 rounded-xl bg-black/20 px-4 py-2 outline-none"
+            className="w-full mt-1 rounded-xl bg-ink/40 px-4 py-2 outline-none"
           />
         </div>
         <div>
           <label className="text-sm opacity-80">Message</label>
           <textarea
             required rows={5} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })}
-            className="w-full mt-1 rounded-xl bg-black/20 px-4 py-2 outline-none"
+            className="w-full mt-1 rounded-xl bg-ink/40 px-4 py-2 outline-none"
           />
         </div>
-        <button type="submit" className="w-full py-3 rounded-full bg-brand-gradient text-white font-semibold">
+        <button type="submit" className="w-full py-3 btn-primary">
           Submit
         </button>
-        {status && <p className="text-teal-light text-sm text-center">{status}</p>}
+        {status && <p className="text-brandGreen text-sm text-center">{status}</p>}
       </form>
     </div>
   )

@@ -14,10 +14,10 @@ const ICONS = {
 }
 
 const CHIP_COLORS = {
-  high: 'bg-teal/20 text-teal-light border-teal/40',
-  medium: 'bg-indigoAccent/20 text-indigoAccent-light border-indigoAccent/40',
-  low: 'bg-coral/20 text-coral border-coral/40',
-  none: 'bg-white/10 opacity-70 border-white/10',
+  high: 'bg-brandGreen/20 text-brandGreen border-brandGreen/40',
+  medium: 'bg-coral/20 text-coral border-coral/40',
+  low: 'bg-coralDeep/20 text-coralDeep border-coralDeep/40',
+  none: 'bg-ivory/10 opacity-80 border-ivory/15',
 }
 
 const buildEmptyStatus = () => ({ level: STATUS.EMPTY, ...STATUS_META[STATUS.EMPTY] })

@@ -1,0 +1,105 @@
+.sm-trigger {
+  position: fixed;
+  left: 14px;
+  top: 16px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: none;
+  background: #ff6b5b;
+  color: #0f1226;
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 1100;
+  box-shadow: 0 4px 16px rgba(255, 107, 91, 0.45), 0 4px 10px rgba(15, 18, 38, 0.5);
+  transition: box-shadow 0.3s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sm-trigger:hover {
+  box-shadow: 0 0 20px rgba(255, 107, 91, 0.6), 0 10px 20px rgba(15, 18, 38, 0.55);
+  transform: translateY(-2px);
+}
+
+.sm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 7, 15, 0.55);
+  z-index: 1050;
+}
+
+.sm-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 240px;
+  background: #171b3a;
+  border-right: 1px solid rgba(253, 246, 236, 0.08);
+  box-shadow: 4px 0 20px rgba(15, 18, 38, 0.6);
+  transform: translateX(-100%);
+  transition: transform 0.25s ease;
+  z-index: 1075;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  overflow-y: auto;
+}
+
+.sm-panel-open {
+  transform: translateX(0);
+}
+
+.sm-panel-header {
+  color: #fdf6ec;
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 17px;
+  padding: 0 20px 16px 20px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(253, 246, 236, 0.1);
+}
+
+.sm-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  color: #fdf6ec;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.sm-item:hover {
+  background: rgba(124, 127, 242, 0.16);
+  color: #fdf6ec;
+  border-left-color: rgba(124, 127, 242, 0.65);
+}
+
+.sm-item:hover .sm-label {
+  color: rgba(255, 107, 91, 0.9);
+}
+
+.sm-item-active {
+  background: rgba(124, 127, 242, 0.2);
+  border-left-color: #ff6b5b;
+}
+
+.sm-item-active .sm-label {
+  color: #ff6b5b;
+}
+
+.sm-icon {
+  font-size: 18px;
+  width: 22px;
+  text-align: center;
+}

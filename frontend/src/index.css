@@ -7,8 +7,8 @@ html {
 }
 
 body {
-  font-family: 'Inter', sans-serif;
-  @apply bg-ink text-slate-100 transition-colors duration-300;
+  font-family: 'Space Grotesk', sans-serif;
+  @apply bg-ink text-ivory transition-colors duration-300;
 }
 
 body.light-mode {
@@ -28,36 +28,238 @@ body.high-contrast.light-mode {
 }
 
 h1, h2, h3, h4, .font-display {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Fraunces', serif;
 }
 
-/* Glassmorphism panel */
+/* ------------------------------------------------------------------ */
+/* Surface — updated version of the legacy `.glass` panel, in the new   */
+/* ink2 palette. Kept as the app-wide card/panel surface so every page  */
+/* inherits the new look automatically.                                 */
+/* ------------------------------------------------------------------ */
 .glass {
-  background: rgba(26, 35, 51, 0.55);
+  background: rgba(23, 27, 58, 0.8);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(253, 246, 236, 0.1);
 }
 
 body.light-mode .glass {
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(15, 23, 42, 0.06);
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(15, 18, 38, 0.08);
 }
 
+/* ------------------------------------------------------------------ */
+/* Card hover-lift — 8px lift + slight forward 3D + enlarged soft       */
+/* shadow. `transition: 0.35s cubic-bezier(.2,.8,.2,1)` per spec.       */
+/* Parents should add `[perspective:1200px]` on card grids for the      */
+/* translateZ to be visible.                                            */
+/* ------------------------------------------------------------------ */
+.card-lift {
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.2s ease;
+  will-change: transform;
+}
+
+.card-lift:hover {
+  transform: translate3d(0, -8px, 18px);
+  box-shadow: 0 24px 44px 0 rgba(15, 18, 38, 0.55),
+    0 2px 12px 0 rgba(124, 127, 242, 0.18);
+  border-color: rgba(124, 127, 242, 0.35);
+}
+
+/* ------------------------------------------------------------------ */
+/* Buttons — primary & secondary. Pill-shaped, sizes stay in JSX.       */
+/* Primary: coral bg, ink text. Hover: coral glow + 2px lift.           */
+/* Secondary: transparent, ivory text, thin border. Hover: violet       */
+/* border + violet glow ring + 2px lift.                                */
+/* ------------------------------------------------------------------ */
+.btn-primary {
+  border-radius: 999px;
+  background: #ff6b5b;
+  color: #0f1226;
+  font-weight: 600;
+  transition: box-shadow 0.3s, transform 0.2s, background-color 0.2s,
+    color 0.2s, opacity 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 0 20px rgba(255, 107, 91, 0.55),
+    0 10px 22px rgba(15, 18, 38, 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.4;
+}
+
+.btn-secondary {
+  border-radius: 999px;
+  background: transparent;
+  color: #fdf6ec;
+  border: 1px solid rgba(253, 246, 236, 0.35);
+  font-weight: 600;
+  transition: border-color 0.25s, box-shadow 0.3s, transform 0.2s,
+    color 0.2s, opacity 0.2s;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: #7c7ff2;
+  box-shadow: 0 0 0 2px rgba(124, 127, 242, 0.45),
+    0 0 18px rgba(124, 127, 242, 0.35);
+  transform: translateY(-2px);
+  color: #fdf6ec;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.4;
+}
+
+body.light-mode .btn-primary {
+  background: #ff6b5b;
+  color: #ffffff;
+}
+
+body.light-mode .btn-secondary {
+  border-color: rgba(15, 18, 38, 0.25);
+  color: #1f2937;
+}
+
+/* ------------------------------------------------------------------ */
+/* Background ambiance orbs — large, softly blurred, drifting.          */
+/* Rendered once in App.jsx (root layout) so every page shares them.    */
+/* ------------------------------------------------------------------ */
+.bg-orbs {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+body.light-mode .bg-orbs {
+  display: none;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.35;
+  pointer-events: none;
+  animation: orb-drift 18s ease-in-out infinite;
+}
+
+.orb-coral {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle at center, #ff6b5b 0%, rgba(255, 107, 91, 0) 70%);
+}
+
+.orb-violet {
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle at center, #7c7ff2 0%, rgba(124, 127, 242, 0) 70%);
+}
+
+.orb-green {
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle at center, #4ade9b 0%, rgba(74, 222, 155, 0) 70%);
+}
+
+.orb-pos-tl {
+  top: -120px;
+  left: -120px;
+  animation-delay: 0s;
+}
+
+.orb-pos-tr {
+  top: -80px;
+  right: -100px;
+  animation-delay: -6s;
+}
+
+.orb-pos-b {
+  bottom: -140px;
+  right: 12%;
+  animation-delay: -12s;
+}
+
+@keyframes orb-drift {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(52px, 44px) scale(1.12);
+  }
+  100% {
+    transform: translate(-36px, -28px) scale(0.94);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Logo mark — spinning conic-gradient ring (coral → violet → green)    */
+/* behind the logo mark. 4s linear infinite rotation.                   */
+/* ------------------------------------------------------------------ */
+.logo-ring {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #ff6b5b; /* fallback for browsers without conic-gradient */
+  background-image: conic-gradient(from 0deg, #ff6b5b 0%, #7c7ff2 25%, #4ade9b 50%, #ff6b5b 75%, #7c7ff2 100%);
+  animation: logo-spin 4s linear infinite;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo-ring::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: #0f1226;
+}
+
+.logo-mark {
+  position: relative;
+  z-index: 1;
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1;
+  color: #fdf6ec;
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Shared text treatment                                              */
+/* ------------------------------------------------------------------ */
 .text-gradient {
-  background: linear-gradient(135deg, #5EEAD4, #A5B4FC, #FB7185);
+  background: linear-gradient(135deg, #ff6b5b 0%, #7c7ff2 60%, #4ade9b 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
-/* Visible keyboard focus for accessibility */
+/* Visible keyboard focus for accessibility — brandGreen ring on ink */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid #5EEAD4;
+  outline: 2px solid #4ade9b;
   outline-offset: 2px;
 }
 
@@ -65,12 +267,14 @@ select:focus-visible {
   width: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #6366F1;
+  background: #7c7ff2;
   border-radius: 8px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;

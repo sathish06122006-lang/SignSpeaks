@@ -1,4 +1,4 @@
-import { FiTrash2, FiRotateCcw, FiVolume2, FiAlertTriangle } from 'react-icons/fi'
+﻿import { FiTrash2, FiRotateCcw, FiVolume2, FiAlertTriangle } from 'react-icons/fi'
 
 /**
  * Reusable Context-Aware Interpretation panel.
@@ -26,7 +26,7 @@ export default function ContextInterpretation({
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs px-2 py-1 rounded-full bg-white/10 opacity-70" title="Sentence formation uses a rule-based prototype until a real NLP service is connected.">Prototype formation</span>
           {sentenceConfidence !== null && sentenceConfidence !== undefined && (
-            <span className="text-xs px-3 py-1 rounded-full border border-indigoAccent/40 bg-indigoAccent/20 text-indigoAccent-light font-semibold">
+            <span className="text-xs px-3 py-1 rounded-full border border-violet/40 bg-violet/20 text-violet font-semibold">
               Sentence confidence: {Math.round(sentenceConfidence)}%
             </span>
           )}
@@ -36,7 +36,7 @@ export default function ContextInterpretation({
       <div>
         <h4 className="text-xs uppercase tracking-wide opacity-60 mb-2">Detected Signs</h4>
         {sequence.length === 0 ? (
-          <p className="text-xs opacity-50">No signs detected yet — perform ISL signs to build a sequence.</p>
+          <p className="text-xs opacity-60">No signs detected yet — perform ISL signs to build a sequence.</p>
         ) : (
           <div className="flex flex-wrap gap-2">
             {sequence.map((e, i) => (
@@ -44,8 +44,8 @@ export default function ContextInterpretation({
                 key={`${e.timestamp}-${i}-${e.sign}`}
                 className={`px-3 py-1 rounded-full border text-xs font-semibold ${
                   e.recognized
-                    ? 'bg-teal/20 border-teal/40 text-teal-light'
-                    : 'bg-coral/20 border-coral/40 text-coral'
+                    ? 'bg-brandGreen/20 border-brandGreen/40 text-brandGreen'
+                    : 'bg-coralDeep/20 border-coralDeep/40 text-coralDeep'
                 }`}
               >
                 [{e.recognized ? e.sign : 'UNKNOWN'}]
@@ -60,7 +60,7 @@ export default function ContextInterpretation({
         {sentence ? (
           <p className="text-lg font-display font-semibold leading-snug">“{sentence}”</p>
         ) : (
-          <p className="text-sm opacity-50">—</p>
+          <p className="text-sm opacity-60">—</p>
         )}
 
         {partial && (
@@ -75,17 +75,17 @@ export default function ContextInterpretation({
         <button
           onClick={onClear}
           disabled={!sequence.length}
-          className="flex items-center gap-1 px-3 py-2 rounded-full glass text-xs font-semibold disabled:opacity-40"
+          className="flex items-center gap-1 px-3 py-2 text-xs btn-secondary disabled:opacity-40"
         >
           <FiTrash2 /> Clear
         </button>
-        <button onClick={onRetry} className="flex items-center gap-1 px-3 py-2 rounded-full glass text-xs font-semibold">
+        <button onClick={onRetry} className="flex items-center gap-1 px-3 py-2 text-xs btn-secondary">
           <FiRotateCcw /> Retry
         </button>
         <button
           onClick={onSpeak}
           disabled={!sentence}
-          className="flex items-center gap-1 px-3 py-2 rounded-full bg-brand-gradient text-white text-xs font-semibold disabled:opacity-40"
+          className="flex items-center gap-1 px-3 py-2 text-xs btn-primary disabled:opacity-40"
         >
           <FiVolume2 /> Speak
         </button>

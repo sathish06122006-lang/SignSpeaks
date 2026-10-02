@@ -2,7 +2,7 @@ import api from '../utils/api'
 
 /**
  * TranslationService — clean abstraction over translation for recognised
- * ISL sentences (Live Detection, AI Practice, Emergency page).
+ * ISL sentences (Live Detection, AI Practice, Text to Sign).
  *
  * MODE: demo / prototype (clearly labelled in the UI as "Demo translation").
  * No translation API key is configured in this project, so this service

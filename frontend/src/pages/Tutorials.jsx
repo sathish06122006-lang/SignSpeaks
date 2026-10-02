@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import api from '../utils/api'
  
 const CATEGORIES = ['All', 'Beginner', 'Intermediate', 'Advanced']
@@ -6,11 +6,13 @@ const CATEGORIES = ['All', 'Beginner', 'Intermediate', 'Advanced']
 // Fallback demo tutorials shown if the admin hasn't uploaded any yet —
 // so the page never looks empty on a fresh install.
 const DEMO_TUTORIALS = [
-  { _id: 'demo1', title: 'ISL Alphabet Basics', category: 'Beginner', video_id: '5yYbIEF_L0U' },
-  { _id: 'demo2', title: 'Numbers in ISL', category: 'Beginner', video_id: 'NBRlKdNC6Jk' },
-  { _id: 'demo3', title: 'Everyday Conversations', category: 'Intermediate', video_id: 'NBRlKdNC6Jk' },
-  { _id: 'demo4', title: 'Advanced Storytelling in ISL', category: 'Advanced', video_id: 'Vj_13bdU4dU' },
-].map((t) => ({ ...t, youtube_url: `https://www.youtube.com/embed/${t.video_id}` }))
+  // Alphabets tutorial -> "Indian Sign language Alphabet A to Z"
+  { _id: 'demo1', title: 'ISL Alphabet Basics', category: 'Beginner', youtube_url: 'https://www.youtube.com/embed/Fbc-slsqRpY' },
+  // Numbers tutorial -> "Indian Sign language Number 0 to 9"
+  { _id: 'demo2', title: 'Numbers in ISL', category: 'Beginner', youtube_url: 'https://www.youtube.com/embed/rjn5W1PzUNk' },
+  { _id: 'demo3', title: 'Everyday Conversations', category: 'Intermediate', youtube_url: 'https://www.youtube.com/embed/NBRlKdNC6Jk' },
+  { _id: 'demo4', title: 'Advanced Storytelling in ISL', category: 'Advanced', youtube_url: 'https://www.youtube.com/embed/Vj_13bdU4dU' },
+]
  
 function VideoEmbed({ videoId, url, title }) {
   const [failed, setFailed] = useState(false)
@@ -18,14 +20,14 @@ function VideoEmbed({ videoId, url, title }) {
  
   if (failed || !id) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-black/30">
+      <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-ink/40">
         <p className="text-sm opacity-70">Preview unavailable</p>
         <a
           href={id ? `https://www.youtube.com/watch?v=${id}` : '#'}
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="text-xs px-3 py-1.5 rounded-full bg-brand-gradient text-white font-semibold"
+          className="text-xs px-3 py-1.5 btn-primary"
         >
           Watch on YouTube
         </a>
@@ -83,14 +85,14 @@ export default function Tutorials() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search tutorials…"
-          className="glass rounded-full px-4 py-2 text-sm outline-none flex-1 min-w-[200px]"
+          className="bg-ink/40 rounded-full px-4 py-2 text-sm outline-none flex-1 min-w-[200px] border border-ivory/15 placeholder:text-ivory/40"
         />
         {CATEGORIES.map((c) => (
           <button
             key={c}
             onClick={() => setCategory(c)}
             className={`px-4 py-2 rounded-full text-sm font-semibold ${
-              category === c ? 'bg-brand-gradient text-white' : 'glass opacity-80'
+              category === c ? 'btn-primary' : 'btn-secondary opacity-80'
             }`}
           >
             {c}
@@ -98,9 +100,9 @@ export default function Tutorials() {
         ))}
       </div>
  
-      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
+      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6 mb-12 [perspective:1200px]">
         {filtered.map((t) => (
-          <div key={t._id} onClick={() => watchTutorial(t)} className="glass rounded-2xl overflow-hidden cursor-pointer">
+          <div key={t._id} onClick={() => watchTutorial(t)} className="glass rounded-2xl overflow-hidden cursor-pointer card-lift">
             <div className="aspect-video">
               <VideoEmbed videoId={t.video_id} url={t.youtube_url} title={t.title} />
             </div>
@@ -118,7 +120,7 @@ export default function Tutorials() {
           <h3 className="font-display font-semibold mb-3">Recently Watched</h3>
           <div className="flex gap-3 overflow-x-auto">
             {recentlyWatched.map((t) => (
-              <div key={t._id} className="glass rounded-xl px-4 py-3 text-sm min-w-[180px]">
+              <div key={t._id} className="glass rounded-xl px-4 py-3 text-sm min-w-[180px] card-lift">
                 {t.title}
               </div>
             ))}
@@ -130,7 +132,7 @@ export default function Tutorials() {
         <h3 className="font-display font-semibold mb-3">Recommended for You</h3>
         <div className="flex gap-3 overflow-x-auto">
           {DEMO_TUTORIALS.slice(0, 3).map((t) => (
-            <div key={t._id} className="glass rounded-xl px-4 py-3 text-sm min-w-[180px]">
+            <div key={t._id} className="glass rounded-xl px-4 py-3 text-sm min-w-[180px] card-lift">
               {t.title}
             </div>
           ))}

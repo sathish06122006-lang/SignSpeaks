@@ -1,7 +1,8 @@
+import certifi
 from motor.motor_asyncio import AsyncIOMotorClient
 from app.config import settings
 
-client = AsyncIOMotorClient(settings.mongo_uri)
+client = AsyncIOMotorClient(settings.mongo_uri, tlsCAFile=certifi.where() if "mongodb+srv" in settings.mongo_uri else None)
 db = client[settings.db_name]
 
 # Collections

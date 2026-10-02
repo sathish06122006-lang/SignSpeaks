@@ -7,7 +7,7 @@ export default function ProtectedRoute({ children, adminOnly = false }) {
 
   if (loading) return <LoadingSpinner />
   if (!user) return <Navigate to="/login" replace />
-  if (adminOnly && user.role !== 'admin') return <Navigate to="/dashboard" replace />
+  if (adminOnly && user.role !== 'admin') return <Navigate to="/my-progress" replace />
 
   return children
 }

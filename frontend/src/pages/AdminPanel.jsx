@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import api from '../utils/api'
 
 const TABS = ['Analytics', 'Users', 'Tutorials', 'Sign Images', 'Categories', 'Model Upload']
@@ -17,7 +17,7 @@ export default function AdminPanel() {
             key={t}
             onClick={() => setTab(t)}
             className={`px-4 py-2 rounded-full text-sm font-semibold ${
-              tab === t ? 'bg-brand-gradient text-white' : 'glass opacity-80'
+              tab === t ? 'btn-primary' : 'btn-secondary opacity-80'
             }`}
           >
             {t}
@@ -43,11 +43,11 @@ function AnalyticsTab() {
   if (!data) return null
   return (
     <div className="grid sm:grid-cols-3 gap-4">
-      <div className="glass rounded-2xl p-5">
+      <div className="glass rounded-2xl p-5 card-lift">
         <p className="text-xs opacity-60">Total Users</p>
         <p className="text-3xl font-display font-bold text-gradient">{data.total_users}</p>
       </div>
-      <div className="glass rounded-2xl p-5">
+      <div className="glass rounded-2xl p-5 card-lift">
         <p className="text-xs opacity-60">Total Detections</p>
         <p className="text-3xl font-display font-bold text-gradient">{data.total_detections}</p>
       </div>
@@ -89,7 +89,7 @@ function UsersTab() {
               <td>{u.email}</td>
               <td>{u.role}</td>
               <td>
-                <button onClick={() => removeUser(u._id)} className="text-coral text-xs font-semibold">Remove</button>
+                <button onClick={() => removeUser(u._id)} className="text-coralDeep text-xs font-semibold">Remove</button>
               </td>
             </tr>
           ))}
@@ -121,21 +121,21 @@ function TutorialsTab() {
     <div className="grid lg:grid-cols-2 gap-6">
       <form onSubmit={addTutorial} className="glass rounded-2xl p-5 space-y-3">
         <h3 className="font-display font-semibold">Upload Tutorial</h3>
-        <input required placeholder="Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full rounded-xl bg-black/20 px-4 py-2 outline-none" />
-        <input required placeholder="YouTube embed URL" value={form.youtube_url} onChange={(e) => setForm({ ...form, youtube_url: e.target.value })} className="w-full rounded-xl bg-black/20 px-4 py-2 outline-none" />
-        <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full rounded-xl bg-black/20 px-4 py-2 outline-none">
+        <input required placeholder="Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full rounded-xl bg-ink/40 px-4 py-2 outline-none" />
+        <input required placeholder="YouTube embed URL" value={form.youtube_url} onChange={(e) => setForm({ ...form, youtube_url: e.target.value })} className="w-full rounded-xl bg-ink/40 px-4 py-2 outline-none" />
+        <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full rounded-xl bg-ink/40 px-4 py-2 outline-none">
           <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
         </select>
-        <textarea placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full rounded-xl bg-black/20 px-4 py-2 outline-none" />
-        <button type="submit" className="w-full py-2 rounded-full bg-brand-gradient text-white font-semibold">Add Tutorial</button>
+        <textarea placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full rounded-xl bg-ink/40 px-4 py-2 outline-none" />
+        <button type="submit" className="w-full py-2 btn-primary">Add Tutorial</button>
       </form>
 
       <div className="glass rounded-2xl p-5 space-y-2 max-h-96 overflow-y-auto">
         <h3 className="font-display font-semibold mb-2">Existing Tutorials</h3>
         {tutorials.map((t) => (
           <div key={t._id} className="flex justify-between items-center text-sm border-b border-white/5 py-2">
-            <span>{t.title} <span className="opacity-50">({t.category})</span></span>
-            <button onClick={() => removeTutorial(t._id)} className="text-coral text-xs font-semibold">Remove</button>
+            <span>{t.title} <span className="opacity-60">({t.category})</span></span>
+            <button onClick={() => removeTutorial(t._id)} className="text-coralDeep text-xs font-semibold">Remove</button>
           </div>
         ))}
         {tutorials.length === 0 && <p className="opacity-60 text-sm">No tutorials uploaded yet.</p>}
@@ -165,14 +165,14 @@ function CategoriesTab() {
     <div className="glass rounded-2xl p-5 max-w-md space-y-3">
       <h3 className="font-display font-semibold">Manage Categories</h3>
       <form onSubmit={addCategory} className="flex gap-2">
-        <input required placeholder="New category name" value={name} onChange={(e) => setName(e.target.value)} className="flex-1 rounded-xl bg-black/20 px-4 py-2 outline-none" />
-        <button type="submit" className="px-4 py-2 rounded-full bg-brand-gradient text-white text-sm font-semibold">Add</button>
+        <input required placeholder="New category name" value={name} onChange={(e) => setName(e.target.value)} className="flex-1 rounded-xl bg-ink/40 px-4 py-2 outline-none" />
+        <button type="submit" className="px-4 py-2 text-sm btn-primary">Add</button>
       </form>
       <div className="space-y-2">
         {categories.map((c) => (
           <div key={c._id} className="flex justify-between items-center text-sm border-b border-white/5 py-2">
             <span>{c.name}</span>
-            <button onClick={() => removeCategory(c._id)} className="text-coral text-xs font-semibold">Remove</button>
+            <button onClick={() => removeCategory(c._id)} className="text-coralDeep text-xs font-semibold">Remove</button>
           </div>
         ))}
         {categories.length === 0 && <p className="opacity-60 text-sm">No categories yet.</p>}
@@ -218,19 +218,19 @@ function SignImagesTab() {
           Upload a real, accurate ISL handshape photo/illustration for this label. This is what
           learners see on the Learn ISL page — use authentic reference images only.
         </p>
-        <input required placeholder="Label (e.g. A, 5, Hello)" value={label} onChange={(e) => setLabel(e.target.value)} className="w-full rounded-xl bg-black/20 px-4 py-2 outline-none" />
-        <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full rounded-xl bg-black/20 px-4 py-2 outline-none">
+        <input required placeholder="Label (e.g. A, 5, Hello)" value={label} onChange={(e) => setLabel(e.target.value)} className="w-full rounded-xl bg-ink/40 px-4 py-2 outline-none" />
+        <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full rounded-xl bg-ink/40 px-4 py-2 outline-none">
           <option value="alphabet">Alphabet</option>
           <option value="number">Number</option>
           <option value="word">Word</option>
           <option value="phrase">Phrase</option>
         </select>
         <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} className="w-full text-sm" />
-        <button type="submit" className="w-full py-2 rounded-full bg-brand-gradient text-white font-semibold">Upload Image</button>
-        {status && <p className="text-teal-light text-sm">{status}</p>}
+        <button type="submit" className="w-full py-2 btn-primary">Upload Image</button>
+        {status && <p className="text-brandGreen text-sm">{status}</p>}
       </form>
 
-      <div className="glass rounded-2xl p-5">
+      <div className="glass rounded-2xl p-5 card-lift">
         <h3 className="font-display font-semibold mb-3">Uploaded Images ({Object.keys(images).length})</h3>
         <div className="grid grid-cols-3 gap-3 max-h-96 overflow-y-auto">
           {Object.entries(images).map(([lbl, url]) => (
@@ -238,7 +238,7 @@ function SignImagesTab() {
               <img src={`${api.defaults.baseURL}${url}`} alt={lbl} className="w-full aspect-square object-cover rounded-xl" />
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center rounded-xl gap-1">
                 <span className="text-xs font-semibold">{lbl}</span>
-                <button onClick={() => remove(lbl)} className="text-xs text-coral font-semibold">Remove</button>
+                <button onClick={() => remove(lbl)} className="text-xs text-coralDeep font-semibold">Remove</button>
               </div>
             </div>
           ))}
@@ -277,9 +277,9 @@ function ModelUploadTab() {
       </p>
       <form onSubmit={upload} className="space-y-3">
         <input type="file" onChange={(e) => setFile(e.target.files[0])} className="w-full text-sm" />
-        <button type="submit" className="w-full py-2 rounded-full bg-brand-gradient text-white font-semibold">Upload</button>
+        <button type="submit" className="w-full py-2 btn-primary">Upload</button>
       </form>
-      {status && <p className="text-teal-light text-sm">{status}</p>}
+      {status && <p className="text-brandGreen text-sm">{status}</p>}
       <div className="space-y-1 pt-2">
         {models.map((m) => (
           <div key={m._id} className="text-sm opacity-80 flex justify-between border-b border-white/5 py-1">

@@ -1,23 +1,10 @@
-import { useState } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+﻿import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FiMenu, FiX, FiMoon, FiSun } from 'react-icons/fi'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
-
-const LINKS = [
-  { to: '/', label: 'Home' },
-  { to: '/live-detection', label: 'Live Detection' },
-  { to: '/practice', label: 'AI Practice' },
-  { to: '/learn', label: 'Learn ISL' },
-  { to: '/emergency', label: 'Emergency' },
-  { to: '/collect-data', label: 'Collect Data' },
-  { to: '/tutorials', label: 'Tutorials' },
-  { to: '/progress', label: 'Progress' },
-  { to: '/dashboard', label: 'Dashboard' },
-  { to: '/about', label: 'About' },
-  { to: '/contact', label: 'Contact' },
-]
+import LogoMark from './LogoMark'
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
@@ -28,41 +15,25 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 glass shadow-glass">
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 font-display font-800 text-xl">
-          <span className="text-gradient font-extrabold">Sign Speaks</span>
+        <Link to="/" className="flex items-center gap-2 font-bold">
+          <LogoMark />
         </Link>
-
-        <div className="hidden lg:flex items-center gap-6">
-          {LINKS.map((l) => (
-            <NavLink
-              key={l.to}
-              to={l.to}
-              className={({ isActive }) =>
-                `text-sm font-medium transition-colors hover:text-teal-light ${
-                  isActive ? 'text-teal-light' : 'opacity-80'
-                }`
-              }
-            >
-              {l.label}
-            </NavLink>
-          ))}
-        </div>
 
         <div className="hidden lg:flex items-center gap-3">
           <button
             aria-label="Toggle dark and light mode"
             onClick={toggleTheme}
-            className="p-2 rounded-full glass hover:opacity-80"
+            className="p-2 rounded-full btn-secondary"
           >
             {theme === 'dark' ? <FiSun /> : <FiMoon />}
           </button>
           {user ? (
             <>
-              <Link to="/profile" className="text-sm font-medium opacity-90 hover:text-teal-light">
+              <Link to="/profile" className="text-sm font-medium opacity-90 hover:text-violet">
                 {user.name?.split(' ')[0]}
               </Link>
               {user.role === 'admin' && (
-                <Link to="/admin" className="text-sm font-medium opacity-90 hover:text-teal-light">
+                <Link to="/admin" className="text-sm font-medium opacity-90 hover:text-violet">
                   Admin
                 </Link>
               )}
@@ -71,19 +42,19 @@ export default function Navbar() {
                   logout()
                   navigate('/')
                 }}
-                className="px-4 py-2 rounded-full bg-coral text-white text-sm font-semibold hover:bg-coral-dark transition"
+                className="px-4 py-2 text-sm btn-primary"
               >
                 Logout
               </button>
             </>
           ) : (
             <>
-              <Link to="/login" className="text-sm font-medium opacity-90 hover:text-teal-light">
+              <Link to="/login" className="text-sm font-medium opacity-90 hover:text-violet">
                 Login
               </Link>
               <Link
                 to="/signup"
-                className="px-4 py-2 rounded-full bg-brand-gradient text-white text-sm font-semibold hover:opacity-90 transition"
+                className="px-4 py-2 text-sm btn-primary"
               >
                 Sign Up
               </Link>
@@ -91,7 +62,7 @@ export default function Navbar() {
           )}
         </div>
 
-        <button className="lg:hidden text-2xl" onClick={() => setOpen(!open)} aria-label="Toggle menu">
+        <button className="lg:hidden text-2xl text-ivory" onClick={() => setOpen(!open)} aria-label="Toggle menu">
           {open ? <FiX /> : <FiMenu />}
         </button>
       </div>
@@ -104,11 +75,6 @@ export default function Navbar() {
             exit={{ height: 0, opacity: 0 }}
             className="lg:hidden overflow-hidden px-6 pb-4 flex flex-col gap-3"
           >
-            {LINKS.map((l) => (
-              <NavLink key={l.to} to={l.to} onClick={() => setOpen(false)} className="text-sm font-medium opacity-90">
-                {l.label}
-              </NavLink>
-            ))}
             <button onClick={toggleTheme} className="text-sm font-medium opacity-90 text-left">
               Toggle {theme === 'dark' ? 'Light' : 'Dark'} Mode
             </button>
@@ -126,7 +92,7 @@ export default function Navbar() {
                 <Link to="/login" onClick={() => setOpen(false)} className="text-sm font-medium">
                   Login
                 </Link>
-                <Link to="/signup" onClick={() => setOpen(false)} className="text-sm font-semibold text-teal-light">
+                <Link to="/signup" onClick={() => setOpen(false)} className="text-sm font-semibold text-coral">
                   Sign Up
                 </Link>
               </>

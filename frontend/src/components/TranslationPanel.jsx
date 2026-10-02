@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { FiCopy, FiVolume2, FiRefreshCw, FiLoader } from 'react-icons/fi'
 import LanguageSelector from './LanguageSelector'
 import { translateText, getLanguage } from '../services/TranslationService'
@@ -78,7 +78,7 @@ export default function TranslationPanel({ text = '', partial = false, disabled 
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <h3 className="font-display font-semibold">Multilingual Translation</h3>
         <span
-          className="text-xs px-2 py-1 rounded-full bg-white/10 opacity-80"
+          className="text-xs px-2 py-1 rounded-full bg-ivory/15 opacity-80"
           title="No translation API key is configured — this uses the built-in demo dictionary."
         >
           Demo translation
@@ -88,7 +88,7 @@ export default function TranslationPanel({ text = '', partial = false, disabled 
       <LanguageSelector value={targetLang} onChange={setTargetLang} />
 
       {!canTranslate ? (
-        <p className="text-sm opacity-50 py-3">
+        <p className="text-sm opacity-60 py-3">
           {disabled
             ? 'Translation is unavailable for this result — the signs were not recognized clearly enough.'
             : 'No sentence to translate yet. Recognise signs in Live Detection to build one.'}
@@ -97,20 +97,20 @@ export default function TranslationPanel({ text = '', partial = false, disabled 
         <p className="text-sm opacity-60 py-3">Original English text — pick Tamil or Hindi to translate.</p>
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
-          <div className="rounded-xl bg-black/20 p-4">
-            <p className="text-xs uppercase tracking-wide opacity-50 mb-2">Original ({getLanguage('en').flag} English)</p>
+          <div className="rounded-xl bg-ink/40 p-4">
+            <p className="text-xs uppercase tracking-wide opacity-60 mb-2">Original ({getLanguage('en').flag} English)</p>
             <p className="text-sm leading-relaxed">{text}</p>
           </div>
 
-          <div className="rounded-xl bg-black/20 p-4 relative">
-            <p className="text-xs uppercase tracking-wide opacity-50 mb-2">
+          <div className="rounded-xl bg-ink/40 p-4 relative">
+            <p className="text-xs uppercase tracking-wide opacity-60 mb-2">
               {lang.flag} {lang.label}
             </p>
             <div className="min-h-[40px]">
               {loading ? (
                 <span className="flex items-center gap-2 text-sm opacity-60"><FiLoader className="animate-spin" /> Translating…</span>
               ) : error ? (
-                <span className="text-sm text-coral">{error}</span>
+                <span className="text-sm text-coralDeep">{error}</span>
               ) : (
                 <p className="text-sm leading-relaxed">{translated || '—'}</p>
               )}
@@ -129,19 +129,19 @@ export default function TranslationPanel({ text = '', partial = false, disabled 
         <button
           onClick={handleSpeak}
           disabled={!canTranslate || !(translated || text)}
-          className="flex items-center gap-1 px-3 py-2 rounded-full bg-brand-gradient text-white text-xs font-semibold disabled:opacity-40"
+          className="flex items-center gap-1 px-3 py-2 text-xs btn-primary disabled:opacity-40"
         >
           <FiVolume2 /> Speak
         </button>
         <button
           onClick={handleCopy}
           disabled={!canTranslate || !(translated || text)}
-          className="flex items-center gap-1 px-3 py-2 rounded-full glass text-xs font-semibold disabled:opacity-40"
+          className="flex items-center gap-1 px-3 py-2 text-xs btn-secondary disabled:opacity-40"
         >
           <FiCopy /> {copied ? 'Copied!' : 'Copy'}
         </button>
         {error && canTranslate && (
-          <button onClick={retry} className="flex items-center gap-1 px-3 py-2 rounded-full glass text-xs font-semibold">
+          <button onClick={retry} className="flex items-center gap-1 px-3 py-2 text-xs btn-secondary">
             <FiRefreshCw /> Retry translation
           </button>
         )}

@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback } from 'react'
+﻿import { useRef, useState, useEffect, useCallback } from 'react'
 import { FiCamera, FiCameraOff, FiDownload, FiTrash2, FiCheckCircle } from 'react-icons/fi'
 import { useMediaPipeHands } from '../hooks/useMediaPipeHands'
 import api from '../utils/api'
@@ -20,6 +20,7 @@ export default function DataCollection() {
   const [capturing, setCapturing] = useState(false)
   const [capturedCount, setCapturedCount] = useState(0)
   const [summary, setSummary] = useState([])
+  const [exportCategory, setExportCategory] = useState('')
   const captureIntervalRef = useRef(null)
 
   // maxHands=2 so two-handed signs (e.g. certain words/phrases) capture
@@ -70,17 +71,18 @@ export default function DataCollection() {
 
   const exportDataset = async () => {
     try {
-      const response = await api.get('/api/dataset/export', { responseType: 'blob' })
-      const url = window.URL.createObjectURL(new Blob([response.data]))
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', 'isl_landmark_dataset.csv')
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
+      const params = exportCategory ? { category: exportCategory } : {}
+      const response = await api.get('/api/dataset/export', { responseType: 'blob', params })
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'text/csv' }))
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'isl_landmark_dataset.csv'
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
       window.URL.revokeObjectURL(url)
-    } catch (err) {
-      alert('Export failed. Make sure you are logged in, then try again.')
+    } catch {
+      alert('Could not export dataset — please make sure you are logged in.')
     }
   }
 
@@ -111,24 +113,24 @@ export default function DataCollection() {
           <div className="flex gap-3 mt-4">
             <button
               onClick={() => setActive(true)} disabled={active}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-brand-gradient text-white text-sm font-semibold disabled:opacity-40"
+              className="flex items-center gap-2 px-4 py-2 text-sm btn-primary disabled:opacity-40"
             >
               <FiCamera /> Start Camera
             </button>
             <button
               onClick={() => setActive(false)} disabled={!active}
-              className="flex items-center gap-2 px-4 py-2 rounded-full glass text-sm font-semibold disabled:opacity-40"
+              className="flex items-center gap-2 px-4 py-2 text-sm btn-secondary disabled:opacity-40"
             >
               <FiCameraOff /> Stop Camera
             </button>
           </div>
           <div className="mt-3 flex items-center gap-3 text-xs">
             {active && (
-              <span className={`px-3 py-1 rounded-full ${handDetected ? 'bg-teal/20 text-teal-light' : 'bg-white/10 opacity-70'}`}>
+              <span className={`px-3 py-1 rounded-full ${handDetected ? 'bg-brandGreen/20 text-brandGreen' : 'bg-white/10 opacity-70'}`}>
                 {handDetected ? `${hands.length} hand${hands.length > 1 ? 's' : ''} detected (${hands.map(h => h.handedness).join(', ')})` : 'No hand detected'}
               </span>
             )}
-            {active && <span className="opacity-50">{fps} FPS</span>}
+            {active && <span className="opacity-60">{fps} FPS</span>}
           </div>
           {active && !handDetected && (
             <p className="mt-2 text-sm text-coral">Position one or both hands in frame.</p>
@@ -142,18 +144,18 @@ export default function DataCollection() {
               value={label}
               onChange={(e) => setLabel(e.target.value.slice(0, 12))}
               placeholder="A, 5, Hello…"
-              className="w-full mt-1 rounded-xl bg-black/20 px-4 py-2 outline-none text-lg font-display font-bold"
+              className="w-full mt-1 rounded-xl bg-ink/40 px-4 py-2 outline-none text-lg font-display font-bold"
             />
-            <p className="text-xs opacity-50 mt-1">
+            <p className="text-xs opacity-60 mt-1">
               Category auto-detected: <span className="opacity-80">{guessCategory(label)}</span>
             </p>
           </div>
 
           <div className="text-sm opacity-80">
-            Samples for "{label}": <span className="font-semibold text-teal-light">{currentCount}</span>
+            Samples for "{label}": <span className="font-semibold text-brandGreen">{currentCount}</span>
             {currentEntry?.two_handed && <span className="ml-2 text-xs opacity-60">(two-handed)</span>}
             {currentCount >= RECOMMENDED_SAMPLES && (
-              <span className="ml-2 inline-flex items-center gap-1 text-xs text-teal-light"><FiCheckCircle /> Ready</span>
+              <span className="ml-2 inline-flex items-center gap-1 text-xs text-brandGreen"><FiCheckCircle /> Ready</span>
             )}
           </div>
 
@@ -162,31 +164,42 @@ export default function DataCollection() {
               <button
                 onClick={startBurstCapture}
                 disabled={!active || !handDetected}
-                className="py-3 rounded-full bg-brand-gradient text-white font-semibold disabled:opacity-40"
+                className="py-3 btn-primary disabled:opacity-40"
               >
                 Start Capturing
               </button>
             ) : (
-              <button onClick={stopBurstCapture} className="py-3 rounded-full bg-coral text-white font-semibold">
+              <button onClick={stopBurstCapture} className="py-3 btn-primary">
                 Stop ({capturedCount} captured this session)
               </button>
             )}
-            <button onClick={clearLabelData} className="flex items-center justify-center gap-2 py-2 rounded-full glass text-xs font-semibold text-coral">
+            <button onClick={clearLabelData} className="flex items-center justify-center gap-2 py-2 text-xs btn-secondary text-coral">
               <FiTrash2 /> Clear samples for this label
             </button>
           </div>
 
-          <button onClick={exportDataset} className="w-full flex items-center justify-center gap-2 py-3 rounded-full glass text-sm font-semibold">
-            <FiDownload /> Export Full Dataset (CSV)
+          <select
+            value={exportCategory}
+            onChange={(e) => setExportCategory(e.target.value)}
+            className="w-full rounded-full bg-ink/40 px-4 py-2 text-sm outline-none"
+          >
+            <option value="">Export: Everything</option>
+            <option value="alphabet">Export: Alphabets only</option>
+            <option value="number">Export: Numbers only</option>
+            <option value="word">Export: Words only</option>
+            <option value="phrase">Export: Phrases only</option>
+          </select>
+          <button onClick={exportDataset} className="w-full flex items-center justify-center gap-2 py-3 text-sm btn-secondary">
+            <FiDownload /> Export Dataset (CSV)
           </button>
 
           <div>
             <h4 className="text-xs font-semibold opacity-70 mb-2">Collected So Far</h4>
             <div className="max-h-48 overflow-y-auto space-y-1">
-              {summary.length === 0 && <p className="text-xs opacity-50">No samples collected yet.</p>}
+              {summary.length === 0 && <p className="text-xs opacity-60">No samples collected yet.</p>}
               {summary.map((s) => (
                 <div key={s.label} className="flex justify-between text-xs opacity-80 border-b border-white/5 py-1">
-                  <span>{s.label} <span className="opacity-50">({s.category}{s.two_handed ? ', 2-hand' : ''})</span></span>
+                  <span>{s.label} <span className="opacity-60">({s.category}{s.two_handed ? ', 2-hand' : ''})</span></span>
                   <span>{s.count}</span>
                 </div>
               ))}
@@ -195,13 +208,13 @@ export default function DataCollection() {
         </div>
       </div>
 
-      <div className="glass rounded-2xl p-6 mt-8 text-sm opacity-80">
+      <div className="glass rounded-2xl p-6 mt-8 text-sm opacity-80 card-lift">
         <h3 className="font-display font-semibold mb-2">Next step: train your model</h3>
         <p>
-          Once you've collected enough samples, click <strong>Export Full Dataset</strong>, save the
+          Once you've collected enough samples, click <strong>Export Dataset</strong>, save the
           file as <code>backend/training/isl_landmark_dataset.csv</code>, then run:
         </p>
-        <pre className="bg-black/30 rounded-xl p-3 mt-2 overflow-x-auto text-xs">
+        <pre className="bg-ink/40 rounded-xl p-3 mt-2 overflow-x-auto text-xs">
 {`cd backend
 pip install -r training/requirements-train.txt
 python training/train_model.py`}

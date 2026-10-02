@@ -1,0 +1,169 @@
+/* ------------------------------------------------------------------ */
+/* HeroScanCard — particle-scan hand visualization                      */
+/* Solid ink2 card + violet tech grid + sweeping scan line + glowing    */
+/* 21-landmark skeleton (spin in 3D) + tilt on hover + cycling glow.    */
+/* ------------------------------------------------------------------ */
+
+/* Card: outer glow cycles brandGreen -> violet -> coral every 6s. */
+.hero-card {
+  perspective: 1200px;
+  width: 100%;
+  aspect-ratio: 100 / 110; /* matches the SVG viewBox so the skeleton isn't stretched */
+  max-width: 460px;
+  margin: 0 auto;
+  border-radius: 24px;
+  transition: transform 0.3s ease-out;
+  animation: hero-glow 6s ease-in-out infinite;
+}
+
+.hero-scan {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #171b3a; /* ink2, solid — no radial gradient */
+  border: 1px solid rgba(253, 246, 236, 0.1);
+}
+
+/* Faint violet tech-grid — 20px squares, violet ~8% opacity. */
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(124, 127, 242, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(124, 127, 242, 0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Scanning line — 2px brandGreen @ ~70%, sweep top -> bottom, loop. */
+.hero-scanline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(74, 222, 155, 0.7);
+  box-shadow: 0 0 10px rgba(74, 222, 155, 0.4);
+  animation: hero-scan 4s linear infinite;
+}
+
+@keyframes hero-scan {
+  0% {
+    top: 0%;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+/* 3D auto-rotation — rotateY 0->360deg / 9s with slight constant tilt. */
+.hero-skeleton-spin {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: hero-spin 9s linear infinite;
+}
+
+.hero-svg {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes hero-spin {
+  from {
+    transform: rotateX(12deg) rotateY(0deg);
+  }
+  to {
+    transform: rotateX(12deg) rotateY(360deg);
+  }
+}
+
+/* Skeleton nodes — wrist brandGreen, mid-joints violet, fingertips coral. */
+.hero-node-wrist {
+  fill: #4ade9b;
+  filter: drop-shadow(0 0 6px rgba(74, 222, 155, 0.8));
+}
+
+.hero-node-mid {
+  fill: #7c7ff2;
+  filter: drop-shadow(0 0 4px rgba(124, 127, 242, 0.8));
+}
+
+.hero-node-tip {
+  fill: #ff6b5b;
+  filter: drop-shadow(0 0 4px rgba(255, 107, 91, 0.8));
+}
+
+/* Connecting lines — violet @ ~50%, thin (1px). */
+.hero-edge {
+  stroke: rgba(124, 127, 242, 0.5);
+  stroke-width: 0.3;
+}
+
+/* Letter badge — top-left, Fraunces, brandGreen with text-shadow glow,
+   on a solid ink2 chip so it stays readable over the grid. */
+.hero-badge {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  padding: 1px 11px 3px;
+  border-radius: 9px;
+  background: rgba(23, 27, 58, 0.92);
+  border: 1px solid rgba(74, 222, 155, 0.35);
+  color: #4ade9b;
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1;
+  text-shadow: 0 0 8px rgba(74, 222, 155, 0.45);
+  z-index: 2;
+}
+
+/* "21 pts" — top-right, brandGreen @ ~70%, monospace, 11px. */
+.hero-pts {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: rgba(23, 27, 58, 0.9);
+  color: rgba(74, 222, 155, 0.7);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  line-height: 1;
+  z-index: 2;
+}
+
+/* Confidence pill — bottom-right, violet-tinted bg + violet border/text. */
+.hero-pill {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: rgba(124, 127, 242, 0.15);
+  border: 1px solid #7c7ff2;
+  color: #7c7ff2;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  box-shadow: 0 0 10px rgba(124, 127, 242, 0.25);
+  z-index: 2;
+}
+
+/* Outer glow cycle — brandGreen -> violet -> coral, 6s. */
+@keyframes hero-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 26px rgba(74, 222, 155, 0.35);
+  }
+  33.333% {
+    box-shadow: 0 0 26px rgba(124, 127, 242, 0.35);
+  }
+  66.666% {
+    box-shadow: 0 0 26px rgba(255, 107, 91, 0.35);
+  }
+}

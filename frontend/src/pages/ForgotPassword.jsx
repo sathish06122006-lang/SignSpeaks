@@ -1,6 +1,7 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../utils/api'
+import LogoMark from '../components/LogoMark'
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('')
@@ -24,6 +25,7 @@ export default function ForgotPassword() {
 
   return (
     <div className="max-w-md mx-auto px-6 py-16">
+      <div className="flex justify-center mb-6"><LogoMark /></div>
       <div className="glass rounded-2xl p-8">
         <h1 className="font-display text-2xl font-bold mb-6 text-center">Reset Password</h1>
 
@@ -33,13 +35,13 @@ export default function ForgotPassword() {
               <label className="text-sm opacity-80">Account Email</label>
               <input
                 type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-                className="w-full mt-1 rounded-xl bg-black/20 px-4 py-2 outline-none"
+                className="w-full mt-1 rounded-xl bg-ink/40 px-4 py-2 outline-none"
               />
             </div>
-            <button type="submit" className="w-full py-3 rounded-full bg-brand-gradient text-white font-semibold">
+            <button type="submit" className="w-full py-3 btn-primary">
               Send Reset Link
             </button>
-            {message && <p className="text-sm text-teal-light">{message}</p>}
+            {message && <p className="text-sm text-brandGreen">{message}</p>}
           </form>
         )}
 
@@ -53,17 +55,17 @@ export default function ForgotPassword() {
               <label className="text-sm opacity-80">New Password</label>
               <input
                 type="password" required minLength={6} value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full mt-1 rounded-xl bg-black/20 px-4 py-2 outline-none"
+                className="w-full mt-1 rounded-xl bg-ink/40 px-4 py-2 outline-none"
               />
             </div>
-            <button type="submit" className="w-full py-3 rounded-full bg-brand-gradient text-white font-semibold">
+            <button type="submit" className="w-full py-3 btn-primary">
               Update Password
             </button>
           </form>
         )}
 
         {done && (
-          <p className="text-sm text-teal-light text-center">
+          <p className="text-sm text-brandGreen text-center">
             Password updated. <Link to="/login" className="font-semibold underline">Log in</Link>
           </p>
         )}

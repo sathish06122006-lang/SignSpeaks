@@ -5,32 +5,24 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: '#0B1120',
-        surface: '#111827',
-        panel: '#1A2333',
-        teal: {
-          DEFAULT: '#14B8A6',
-          light: '#5EEAD4',
-        },
-        indigoAccent: {
-          DEFAULT: '#6366F1',
-          light: '#A5B4FC',
-        },
-        coral: {
-          DEFAULT: '#FB7185',
-          dark: '#E11D48',
-        },
+        ink: '#0F1226',
+        ink2: '#171B3A',
+        coral: '#FF6B5B',
+        coralDeep: '#E8503F',
+        brandGreen: '#4ADE9B',
+        violet: '#7C7FF2',
+        ivory: '#FDF6EC',
       },
       fontFamily: {
-        display: ['"Sora"', 'sans-serif'],
-        body: ['"Inter"', 'sans-serif'],
+        display: ['"Fraunces"', 'serif'],
+        body: ['"Space Grotesk"', 'sans-serif'],
       },
       backgroundImage: {
-        'brand-gradient': 'linear-gradient(135deg, #14B8A6 0%, #6366F1 60%, #FB7185 100%)',
-        'brand-gradient-soft': 'linear-gradient(135deg, rgba(20,184,166,0.15) 0%, rgba(99,102,241,0.15) 60%, rgba(251,113,133,0.15) 100%)',
+        'brand-gradient': 'linear-gradient(135deg, #FF6B5B 0%, #7C7FF2 60%, #4ADE9B 100%)',
+        'brand-gradient-soft': 'linear-gradient(135deg, rgba(255,107,91,0.14) 0%, rgba(124,127,242,0.14) 60%, rgba(74,222,155,0.14) 100%)',
       },
       boxShadow: {
-        glass: '0 8px 32px 0 rgba(15, 23, 42, 0.25)',
+        glass: '0 8px 32px 0 rgba(15, 18, 38, 0.45)',
       },
     },
   },

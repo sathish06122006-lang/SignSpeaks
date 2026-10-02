@@ -15,7 +15,7 @@ export default function LanguageSelector({ value = 'en', onChange }) {
           onClick={() => onChange(l.code)}
           className={`px-3 py-1.5 rounded-full text-sm font-semibold border transition ${
             value === l.code
-              ? 'bg-indigoAccent/30 border-indigoAccent-light text-white'
+              ? 'bg-coral/25 border-coral text-ivory'
               : 'glass opacity-80 hover:opacity-100'
           }`}
         >
